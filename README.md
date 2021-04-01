@@ -315,6 +315,7 @@ this.panel.initSelect(tableName, callbackAfterWriteSelect , callbackAfterInitSel
 
 ## Implement CreateButtonModule
 ### js on sender/initiator module
+```javascript
 form.prototype.listenerButtonModule = function () {
 	let orderId = false
 	let senderId = false
@@ -335,9 +336,11 @@ form.prototype.listenerButtonModule = function () {
 		}
 	})
 }
+```
 
 ### js on receiver/target module
 example implementation on init function with md type
+```javascript
 form.prototype.init = function () {
 	this.superinit()
 	this.resetMaster()
@@ -364,6 +367,8 @@ form.prototype.init = function () {
 	    this.hideToolbar()
 	}
 }
+```
+```javascript
 form.prototype.listenerButtonModuleBack = function(){
 let senderId = false
 	this.createButtonModule({
@@ -380,7 +385,7 @@ let senderId = false
 		}
 	})
 }
-
+```
 ## Authors
 
 * **Yohan Naftali** - *Initial work* - [YFramework](https://github.com/YFramework)
