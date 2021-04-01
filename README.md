@@ -313,7 +313,73 @@ this.panel.initSelect(tableName, callbackAfterWriteSelect , callbackAfterInitSel
 
 
 
+## Implement CreateButtonModule
+### js on sender/initiator module
+form.prototype.listenerButtonModule = function () {
+	let orderId = false
+	let senderId = false
+	this.createButtonModule({
+		title: 'Other Module',
+		module: 'other_module_name',
+		callbackBefore: () => {
+			// function to run before new module loaded
+			senderId = this.id
+		},
+		callback: (obj) => {
+			// function to run when module form loaded
+			obj.senderId = senderId
+		},
+		callbackAfter: () => {
+			// function to run after module form and data has finish loaded
+			console.log('finished')
+		}
+	})
+}
 
+### js on receiver/target module
+example implementation on init function with md type
+form.prototype.init = function () {
+	this.superinit()
+	this.resetMaster()
+	this.handleAction()
+	this.hideTitleDocument()
+	if(typeof this.startMasterMode !== 'undefined' && this.startMasterMode){
+	    const senderId = typeof this.senderId !== 'undefined' ? this.senderId : false
+	    this.showMaster()
+	    $('#input_' + this.mainField).val(senderId)
+	    this.listenerButtonModuleBack()
+	    this.showData(true, false, true, 
+		() => {
+		    this.masterMode()
+		    this.showToolbar()
+		},
+		() => {
+		    document.getElementById('btn-toolbar-module-previous_module_name').style.display = 'block'
+		}
+	    )
+	}
+	else{
+	    this.writeDetail()
+	    this.detailMode()
+	    this.hideToolbar()
+	}
+}
+form.prototype.listenerButtonModuleBack = function(){
+let senderId = false
+	this.createButtonModule({
+		title: 'Back to Previous Module',
+    		module: 'previous_module_name',
+    		callbackBefore: () => {
+			senderId = typeof this.senderId !== 'undefined' ? this.senderId : false
+		},
+		callback: (obj) => {
+			obj.startMasterMode = true,
+			obj.senderId = senderId
+		},
+		callbackAfter: () => 
+		}
+	})
+}
 
 ## Authors
 
