@@ -152,10 +152,11 @@ const param = {
 
 # BASIC FORM
 
-## Create New module 
+## 1. Create New module 
 Create new module from Menu > Settings > Master Modules > New
+Write id module and put it in controller folder
 
-## Create Javascript
+## 2. Create Javascript
 module name: module_name, replace with your module name
 create file in \js\module\v_module_name.js
 
@@ -171,19 +172,128 @@ const param = {
 }
 ```
 
-## Create Controller
+## 3. Create Controller
+```php
+<?php
+if (!defined('BASEPATH')) {header('Location: https://' . $_SERVER['HTTP_HOST'] . '/error.php'); die();};
+require_once "C_secure_area.php";
+class C_module_name C_secure_area
+{
+    private $model = 'M_module_name';
+  
+    public function __construct()
+    {
+        parent::__construct('put_your_module_id_here');
+        $module = 'module_name';
+        $model = 'M_'.$module;
+        $this->load->model($model);
+        $this->model = $model;
+        $this->data = array('module' => $module);
+    }
 
+    public function index()
+    {
+        parent::send_module($this->data);
+    }
 
-## Create Model
+    // Detail
+    public function get_detail()
+    {
+        $this->M_gate->req_json($this->model, 'get_detail', $_GET);
+    }
 
+    // Master
+    public function get()
+    {
+        $this->M_gate->req_json($this->model, 'get_data', $_GET);
+    }
+
+    // Submit
+    public function submit()
+    {
+        $this->M_gate->req_json($this->model, 'submit', $_POST);
+    }
+}
+
+/*
+// END C_module_name
+/* End of file C_module_name.php */
+/* Location: ./application/controllers/C_module_name.php */
+```
+
+## 4. Create Model
+```php
+<?php
+if (!defined('BASEPATH')) {header('Location: https://' . $_SERVER['HTTP_HOST'] . '/error.php');die();}
+;
+class M_module_name extends CI_Model
+{
+    public function __construct()
+    {
+        parent::__construct();
+    }
+    
+    public function get_data($data)
+    {
+        $result = array();
+        $id = isset($data['id']) ? $data['id'] : '';
+        if ($id != '') {
+            $result['master'] = $this->get_master($id);
+        } else {
+            $result['error'] = 'Get data not Found';
+
+        }
+        return $result;
+    }
+    
+    private function get_master($id)
+    {
+        $result = array();
+        ...
+        return $result;
+    }
+    
+    public function submit($post)
+    {
+        $result = array();
+        ...
+        return $result;
+    }
+    
+    public function get_detail($param)
+    {
+        $result = array();
+        $filter = false;
+	...
+	$unfilter_db = clone $db;
+        if (!$filter) {
+            $db->limit(100);
+            $filter = true;
+        }
+
+        $query = $db->get();
+        if ($query && ($query->num_rows() > 0)) {
+            $count = $unfilter_db->get()->num_rows();
+            $result = $query->result_array();
+            if ($count > $query->num_rows()) {
+                $result[0]['db_num_rows'] = $count;
+            }
+        }
+        return $result;
+    }
+    
+ }
+    
+    
+```
 
 # SELECT
 ## Static Select
 example create field_name with select in table_name 
 
-### Define select
+### Javascript Module
 Define select: true in field
-file: \js\modules\v_module_name.js
+file location: \js\modules\v_module_name.js
 
 ```javascript
 this.field.table_name = [
@@ -193,9 +303,9 @@ this.field.table_name = [
 ]
 ```
 
-### Create Controller 
+### Controller
 Create function inside class controller with name call_field_name_select
-file: \application\controllers\C_module_name.php
+file location: \application\controllers\C_module_name.php
 
 ```php
 class C_module_name extends C_secure_area
@@ -209,9 +319,9 @@ class C_module_name extends C_secure_area
 }
 ```
 
-### Create Model
+### Model
 Create function inside class model with name get_field_name_select
-file: \application\models\M_module_name.php
+file location: \application\models\M_module_name.php
 
 ```php
 class M_module_name extends CI_Model
