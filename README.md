@@ -57,7 +57,7 @@ Put this scipt at near the end of html before </html>
 
 <details>
 
-  <summary>Show details</summary>
+<summary>Show details</summary>
   
 <p>
 	
@@ -130,6 +130,7 @@ project
 \```
 
 </p>
+
 </details>
 
 ## Module
