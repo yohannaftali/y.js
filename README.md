@@ -160,13 +160,13 @@ const param = {
 | label  | string | null    | label for your section | title                                                                                                                                                    |
 
 
-# BASIC FORM
+## BASIC FORM
 
-## 1. Create New module 
+### 1. Create New module 
 Create new module from Menu > Settings > Master Modules > New
 Write id module and put it in controller folder
 
-## 2. Create Javascript
+### 2. Create Javascript
 module name: module_name, replace with your module name
 create file in \js\module\v_module_name.js
 
@@ -182,7 +182,7 @@ const param = {
 }
 ```
 
-## 3. Create Controller
+### 3. Create Controller
 ```php
 <?php
 if (!defined('BASEPATH')) {header('Location: https://' . $_SERVER['HTTP_HOST'] . '/error.php'); die();};
@@ -231,7 +231,7 @@ class C_module_name C_secure_area
 /* Location: ./application/controllers/C_module_name.php */
 ```
 
-## 4. Create Model
+### 4. Create Model
 ```php
 <?php
 if (!defined('BASEPATH')) {header('Location: https://' . $_SERVER['HTTP_HOST'] . '/error.php');die();}
@@ -297,11 +297,12 @@ class M_module_name extends CI_Model
     
 ```
 
-# SELECT
-## Static Select
+## Component
+### Select
+#### Static Select
 example create field_name with select in table_name 
 
-### Javascript Module
+##### Javascript Module
 Define select: true in field
 file location: \js\modules\v_module_name.js
 
@@ -313,7 +314,7 @@ this.field.table_name = [
 ]
 ```
 
-### Controller
+##### Controller
 Create function inside class controller with name call_field_name_select
 file location: \application\controllers\C_module_name.php
 
@@ -329,7 +330,7 @@ class C_module_name extends C_secure_area
 }
 ```
 
-### Model
+##### Model
 Create function inside class model with name get_field_name_select
 file location: \application\models\M_module_name.php
 
@@ -355,9 +356,9 @@ class M_module_name extends CI_Model
 }
 ```
 
-## Dynamic Content Select
+#### Dynamic Content Select
 
-### ForceRewrite
+##### ForceRewrite
 add force reWrite when calling initSelect on Event where content of select already changed
 
 ```javascript
@@ -368,7 +369,7 @@ const forceRewrite = true
 this.panel.initSelect(tableName, callbackAfterWriteSelect , callbackAfterInitSelect, forceRewrite)
 ```
 
-### Single field with extra parameter
+##### Single field with extra parameter
 call these function on event where content of select is changed
 
 ```javascript
@@ -410,7 +411,7 @@ class M_module_name extends CI_Model
 }
 ```
 
-### Multiple field with extra parameter
+##### Multiple field with extra parameter
 call these function on event where content of select is changed
 
 ```javascript
@@ -430,7 +431,6 @@ this.panel.initSelect(tableName, callbackAfterWriteSelect , callbackAfterInitSel
 ```
 
 ## Dashboard
-
 
 
 ## Implement CreateButtonModule
