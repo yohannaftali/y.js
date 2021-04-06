@@ -17,7 +17,7 @@ example:
 <script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.app.js"></script>
 <script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.loader.js"></script>
 <script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.panel.js"  ></script>
-<script type="text/javascript" language="javascript" charset="UTF-8"  src="js/framework/y.form.js"></script>
+<script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.form.js"></script>
 <script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.dashboard.js"></script>
 <script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.converter.js"></script>
 <script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/v.sidebar.js"></script>
