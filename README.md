@@ -56,8 +56,11 @@ Put this scipt at near the end of html before </html>
 ## Directory and File Structure
 
 <details>
+
   <summary>Show details</summary>
+  
 <p>
+	
 ```
 project
 │   index.php
