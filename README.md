@@ -125,6 +125,7 @@ project
     |___vendor
 
 \```
+<\details>
 
 ## Module
 
