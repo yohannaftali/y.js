@@ -57,7 +57,7 @@ Put this scipt at near the end of html before </html>
 
 <details>
   <summary>Show details</summary>
-
+<p>
 ```
 project
 │   index.php
@@ -126,7 +126,8 @@ project
 
 \```
 
-<\details>
+</p>
+</details>
 
 ## Module
 
