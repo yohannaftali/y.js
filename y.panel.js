@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Panel Framework
-// 2019.10.02
+// 2021.08.27
 //----------------------------------------------------------------------------------------------------------------------
 (function (window, undefined) {
 	var document = window.document;
@@ -50,7 +50,7 @@
 	// Write Panel
 	/////////////////////////////////////////////////////////////////////////////////////
 	panel.prototype.writePanel = function (param) {
-		var h = yHtml([
+		const h = yHtml([
 			this.panelToolbar(),
 			{
 				element: 'div',
@@ -261,7 +261,7 @@
 		rowClass[0] = false;
 		let masterSelect = [];
 		let masterButtonSelect = [];
-		for (var i in param) {
+		for (let i in param) {
 			let p = param[i];
 			let row = 0;
 			let isDisabled = this.isParam(p, 'is_disabled')
@@ -280,9 +280,11 @@
 				h[row] = '';
 			}
 			let name = typeof p.name !== 'undefined' ? p.name : '';
+			// console.log(`name ${name}`)
 			let addClass = typeof p.addClass !== 'undefined' ? p.addClass : '';
 			let addClassLabel = typeof p.addClassLabel !== 'undefined' ? p.addClassLabel : '';
 			if (this.isParam(p, 'table')) {
+				// console.log(`table ${name}`)
 				this.masterTable.push(name);
 				let clColTable = 'table-master col ';
 				clColTable += typeof p.col !== 'undefined' ? p.col : 's12 m12 x12 xl12';
@@ -304,6 +306,7 @@
 				}
 			}
 			else if (this.isParam(p, 'select')) {
+				// console.log(`select ${name}`)
 				let clField = 'input-field input-field-master col ';
 				clField += typeof p.col !== 'undefined' ? p.col : 's12 m12 x6 xl3';
 				let classInput = 'input-select input-master-select ' + addClass;
@@ -329,22 +332,30 @@
 						p, label.addClass = 'active'
 					}
 				}
+				const selectParam = {
+					id: 'input_' + name,
+					name: name,
+					content: selectContent,
+					class: classInput,
+					addClass: addClass,
+					tag: addClass,
+				};
+				const dataInit = typeof p['data-init'] !== 'undefined' ? p['data-init'] : false
+				if(dataInit) {
+					selectParam['data-init'] = dataInit
+					selectParam.content = dataInit
+					selectParam['use-content'] = true
+				}
 				h[row] += yM.inputFieldSelect({
 					class: clField,
 					icon: pIcon,
-					select: {
-						id: 'input_' + name,
-						name: name,
-						content: selectContent,
-						class: classInput,
-						addClass: addClass,
-						tag: addClass
-					},
+					select: selectParam,
 					label: p.label,
 					span: p.span
 				})
 			}
 			else if (this.isParam(p, 'button_select')) {
+				// console.log(`button_select ${name}`)
 				let clField = 'input-field input-field-master col ';
 				clField += typeof p.col !== 'undefined' ? p.col : 's12';
 				let classInput = 'input-button-select input-master-button-select ' + addClass;
@@ -382,17 +393,25 @@
 					label: p.label,
 					span: p.span
 				})
+				const selectParam = {
+					id: 'input_' + name,
+					name: name,
+					content: '',
+					class: classInput,
+					addClass: addClass,
+					tag: addClass,
+				};
+				const dataInit = typeof p['data-init'] !== 'undefined' ? p['data-init'] : false
+				if(dataInit) {
+					selectParam['data-init'] = dataInit
+				}
 				h[row] += yM.inputFieldSelect({
 					class: 'hide',
-					select: {
-						id: 'input_' + name,
-						name: name,
-						content: '',
-						class: classInput,
-					}
+					select: selectParam
 				})
 			}
 			else if (this.isParam(p, 'checkbox')) {
+				// console.log(`checkbox ${name}`)
 				p.label = typeof p.label !== 'undefined' ? p.label : '';
 				p.value = typeof p.value !== 'undefined' ? p.value : '';
 				let pInputCheckbox = {
@@ -408,6 +427,7 @@
 				})
 			}
 			else if (this.isParam(p, 'radio')) {
+				// console.log(`radio ${name}`)
 				p.label = typeof p.label !== 'undefined' ? p.label : '';
 				p.value = typeof p.value !== 'undefined' ? p.value : '';
 				let pInputRadio = {
@@ -424,6 +444,7 @@
 				})
 			}
 			else if (this.isParam(p, 'labelRadio')) {
+				// console.log(`labelRadio ${name}`)
 				p.label = typeof p.label !== 'undefined' ? p.label : '';
 				let colClass = typeof p.col !== 'undefined' ? p.col : 's3 m4 x2 xl1'
 				h[row] += yM.col({
@@ -436,10 +457,12 @@
 				})
 			}
 			else if (this.isParam(p, 'html')) {
+				//  console.log(`html ${name}`)
 				p.code = typeof p.code !== 'undefined' ? p.code : '';
 				h[row] += p.code
 			}
 			else if (this.isParam(p, 'button')) {
+				// console.log(`button ${name}`)
 				p.icon = typeof p.icon !== 'undefined' ? p.icon : '';
 				p.label = typeof p.label !== 'undefined' ? p.label : '';
 				p.name = typeof p.name !== 'undefined' ? p.name : '';
@@ -464,6 +487,7 @@
 				})
 			}
 			else {
+				// console.log(`others ${name}`)
 				let classInput = 'input_text input_master_text autocomplete' + ' ' + addClass;
 				let clSpan = 'blue-text text-lighten-3 character-counter ';
 				var isDatePicker = false;
@@ -508,13 +532,14 @@
 				}
 				// Multi Param
 				if (this.isParam(p, 'multiparam')) {
+					// console.log(`multiparam ${name}`)
 					let r = this.inputMultiParam(p, name, classInput, clSpan, isDatePicker, isTimePicker);
 					h[row] += typeof r.h !== 'undefined' ? r.h : '';
 					if (typeof r.h !== 'undefined') {
 						multiparam.push(r.m);
 					}
 				}
-				// Main Field
+				// Main Field is_main: true
 				else if (this.isParam(p, 'is_main')) {
 					classInput += ' browser-default title-document' + addClass;
 					yM.inputField({
@@ -527,6 +552,7 @@
 				}
 				// Single param
 				else {
+					// console.log(`else ${name}`)
 					let clField = 'input-field input-field-master col ';
 					clField += typeof p.col !== 'undefined' ? p.col : 's12 m12 x6 xl3';
 					if (isRightAlign) {
@@ -535,6 +561,7 @@
 					let label_info_content = '';
 					if (typeof p.label_info !== 'undefined' && (p.label_info === true || p.label_info === 'yes')) {
 						// label : label
+						// console.log(`label_info ${name}`)
 						label_info_content = typeof p.content !== 'undefined' ? p.content : '';
 						h[row] += yM.col({
 							class: clField,
@@ -550,6 +577,7 @@
 						})
 					} else if (typeof p.label_only !== 'undefined' && (p.label_only === true || p.label_only === 'yes')) {
 						// label
+						// console.log(`label_only ${name}`)
 						h[row] += yM.div({
 							class: clField,
 							content: yM.label({
@@ -559,6 +587,7 @@
 						});
 					} else if (typeof p.hidden !== 'undefined' && p.hidden === true) {
 						// input type=hidden
+						// console.log(`hidden ${name}`)
 						h[row] += yM.input({
 							type: 'hidden',
 							tabindex: '-1',
@@ -568,6 +597,7 @@
 						});
 					} else {
 						// label : input
+						// console.log(`input ${name}`)
 						var pIcon = false;
 						if (typeof p.icon !== 'undefined') {
 							pIcon = p.icon;
@@ -728,6 +758,7 @@
 					)
 					$('#row-button-select-' + name).on('click', '#btn-select-item-' + name + '-' + i, function (e) {
 						e.preventDefault()
+						// console.log($(this).attr('data'))
 					})
 					optionSelect += yM.option(item)
 				}
@@ -1514,10 +1545,10 @@
 				let h = '';
 				const funcFilter = func + '-filter'
 				if (typeof this.selectList[funcFilter] === 'undefined') {
-					this.selectList[funcFilter] = [];
+					this.selectList[funcFilter] = []
 				}
 				if (typeof this.selectController[funcFilter] === 'undefined') {
-					this.selectController[funcFilter] = [];
+					this.selectController[funcFilter] = []
 				}
 				for (var i in fields) {
 					var item = typeof fields[i] !== 'undefined' ? fields[i] : false;
@@ -1713,14 +1744,14 @@
 					}
 				}
 				if (!this.selectList[func].includes(item.name)) {
-					this.selectList[func].push(item.name);
+					this.selectList[func].push(item.name)
 				}
 				if (typeof item.controller !== 'undefined') {
 					this.selectController[func][item.name] = item.controller
 				}
 				let classSelect = classInput + ' input_' + item.name;
 				if (this.modeSelect !== 'materialize') {
-					classSelect += ' browser-default';
+					classSelect += ' browser-default'
 				}
 				let childObject = {
 					class: 'td-input-select',
@@ -1964,12 +1995,12 @@
 		var buttonHtml = ' ';
 		element = typeof element !== 'undefined' ? element : 'input';
 		if (typeof item !== 'undefined' && this.isParam(item, element)) {
-			let isSumHeader = this.isParam(item, 'sum_header');
-			let isSumFooter = this.isParam(item, 'sum_footer');
-			var isHidden = this.isParam(item, 'hidden');
-			var isCheckBox = this.isParam(item, 'checkbox');
-			var isReadonly = this.isParam(item, 'readonly');
-			var isRightAlign = this.isParam(item, 'right_align');
+			let isSumHeader = this.isParam(item, 'sum_header')
+			let isSumFooter = this.isParam(item, 'sum_footer')
+			var isHidden = this.isParam(item, 'hidden')
+			var isCheckBox = this.isParam(item, 'checkbox')
+			var isReadonly = this.isParam(item, 'readonly')
+			var isRightAlign = this.isParam(item, 'right_align')
 			const maxlength = typeof item.maxlength !== 'undefined' ? item.maxlength : false
 			var pclass = 'input_text input-table-cell input_' + func + '_text ' + element + '_single input_' + item.name + ' autocomplete';
 			if (isSumHeader) {
@@ -2018,11 +2049,10 @@
 				if (cell == true || cell == 'true') {
 					yObjCB.checked = 'checked';
 				}
-				var htmlCBContent = yM.input(yObjCB) + yM.span('');
+				var htmlCBContent = yM.input(yObjCB) + yM.span(typeof item.span!== 'undefined' ? item.span : '');
 				html += yM.label(htmlCBContent);
 				tdClass += 'input-checkbox';
 			}
-
 			else if ((element === 'input' || element === 'textarea') && !isHidden) {
 				yObjType.type = 'text';
 				tdClass += 'input-text';
@@ -2274,7 +2304,7 @@
 					const thisRes = cloneObject(res)
 					let selected = $(this).attr('data-init')
 					const useContent = $(this).attr('use-content')
-					if(useContent){
+					if (useContent) {
 						const selObject = thisRes.find(obj => {
 							const content = typeof obj.content !== 'undefined' ? obj.content : obj.label
 							return content === selected
@@ -2301,8 +2331,8 @@
 		}
 		if (typeof this.selectList[func] !== 'undefined' && this.selectList[func].length > 0) {
 			for (let i in this.selectList[func]) {
-				const nameSelect = this.selectList[func][i];
-				this.instancesSelect[func][nameSelect] = [];
+				const nameSelect = this.selectList[func][i]
+				this.instancesSelect[func][nameSelect] = []
 				let url = typeof this.selectController[func][nameSelect] !== 'undefined' ? this.selectController[func][nameSelect] : this.queryUrl + 'call_' + nameSelect + '_select';
 				url = url.replace(/-/g, "_");
 				if (typeof this.resSelect[func][nameSelect] === 'undefined' || forceRewrite) {
@@ -2337,7 +2367,7 @@
 		typeof option !== 'undefined' ? option : undefined
 		if (typeof this.selectList[func] !== 'undefined' && this.selectList[func].length > 0) {
 			for (let i in this.selectList[func]) {
-				const nameSelect = this.selectList[func][i];
+				const nameSelect = this.selectList[func][i]
 				let optionSelect = '';
 				const id = '#' + nameSelect + '-' + row;
 				if (typeof this.resSelect[func] !== 'undefined' && typeof this.resSelect[func][nameSelect] !== 'undefined') {
