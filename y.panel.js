@@ -280,11 +280,9 @@
 				h[row] = '';
 			}
 			let name = typeof p.name !== 'undefined' ? p.name : '';
-			// console.log(`name ${name}`)
 			let addClass = typeof p.addClass !== 'undefined' ? p.addClass : '';
 			let addClassLabel = typeof p.addClassLabel !== 'undefined' ? p.addClassLabel : '';
 			if (this.isParam(p, 'table')) {
-				// console.log(`table ${name}`)
 				this.masterTable.push(name);
 				let clColTable = 'table-master col ';
 				clColTable += typeof p.col !== 'undefined' ? p.col : 's12 m12 x12 xl12';
@@ -306,7 +304,6 @@
 				}
 			}
 			else if (this.isParam(p, 'select')) {
-				// console.log(`select ${name}`)
 				let clField = 'input-field input-field-master col ';
 				clField += typeof p.col !== 'undefined' ? p.col : 's12 m12 x6 xl3';
 				let classInput = 'input-select input-master-select ' + addClass;
@@ -355,7 +352,6 @@
 				})
 			}
 			else if (this.isParam(p, 'button_select')) {
-				// console.log(`button_select ${name}`)
 				let clField = 'input-field input-field-master col ';
 				clField += typeof p.col !== 'undefined' ? p.col : 's12';
 				let classInput = 'input-button-select input-master-button-select ' + addClass;
@@ -411,7 +407,6 @@
 				})
 			}
 			else if (this.isParam(p, 'checkbox')) {
-				// console.log(`checkbox ${name}`)
 				p.label = typeof p.label !== 'undefined' ? p.label : '';
 				p.value = typeof p.value !== 'undefined' ? p.value : '';
 				let pInputCheckbox = {
@@ -427,7 +422,6 @@
 				})
 			}
 			else if (this.isParam(p, 'radio')) {
-				// console.log(`radio ${name}`)
 				p.label = typeof p.label !== 'undefined' ? p.label : '';
 				p.value = typeof p.value !== 'undefined' ? p.value : '';
 				let pInputRadio = {
@@ -444,7 +438,6 @@
 				})
 			}
 			else if (this.isParam(p, 'labelRadio')) {
-				// console.log(`labelRadio ${name}`)
 				p.label = typeof p.label !== 'undefined' ? p.label : '';
 				let colClass = typeof p.col !== 'undefined' ? p.col : 's3 m4 x2 xl1'
 				h[row] += yM.col({
@@ -457,12 +450,10 @@
 				})
 			}
 			else if (this.isParam(p, 'html')) {
-				//  console.log(`html ${name}`)
 				p.code = typeof p.code !== 'undefined' ? p.code : '';
 				h[row] += p.code
 			}
 			else if (this.isParam(p, 'button')) {
-				// console.log(`button ${name}`)
 				p.icon = typeof p.icon !== 'undefined' ? p.icon : '';
 				p.label = typeof p.label !== 'undefined' ? p.label : '';
 				p.name = typeof p.name !== 'undefined' ? p.name : '';
@@ -487,7 +478,6 @@
 				})
 			}
 			else {
-				// console.log(`others ${name}`)
 				let classInput = 'input_text input_master_text autocomplete' + ' ' + addClass;
 				let clSpan = 'blue-text text-lighten-3 character-counter ';
 				var isDatePicker = false;
@@ -532,7 +522,6 @@
 				}
 				// Multi Param
 				if (this.isParam(p, 'multiparam')) {
-					// console.log(`multiparam ${name}`)
 					let r = this.inputMultiParam(p, name, classInput, clSpan, isDatePicker, isTimePicker);
 					h[row] += typeof r.h !== 'undefined' ? r.h : '';
 					if (typeof r.h !== 'undefined') {
@@ -552,7 +541,6 @@
 				}
 				// Single param
 				else {
-					// console.log(`else ${name}`)
 					let clField = 'input-field input-field-master col ';
 					clField += typeof p.col !== 'undefined' ? p.col : 's12 m12 x6 xl3';
 					if (isRightAlign) {
@@ -561,7 +549,6 @@
 					let label_info_content = '';
 					if (typeof p.label_info !== 'undefined' && (p.label_info === true || p.label_info === 'yes')) {
 						// label : label
-						// console.log(`label_info ${name}`)
 						label_info_content = typeof p.content !== 'undefined' ? p.content : '';
 						h[row] += yM.col({
 							class: clField,
@@ -577,7 +564,6 @@
 						})
 					} else if (typeof p.label_only !== 'undefined' && (p.label_only === true || p.label_only === 'yes')) {
 						// label
-						// console.log(`label_only ${name}`)
 						h[row] += yM.div({
 							class: clField,
 							content: yM.label({
@@ -587,7 +573,6 @@
 						});
 					} else if (typeof p.hidden !== 'undefined' && p.hidden === true) {
 						// input type=hidden
-						// console.log(`hidden ${name}`)
 						h[row] += yM.input({
 							type: 'hidden',
 							tabindex: '-1',
@@ -597,7 +582,6 @@
 						});
 					} else {
 						// label : input
-						// console.log(`input ${name}`)
 						var pIcon = false;
 						if (typeof p.icon !== 'undefined') {
 							pIcon = p.icon;
@@ -2049,7 +2033,7 @@
 				if (cell == true || cell == 'true') {
 					yObjCB.checked = 'checked';
 				}
-				var htmlCBContent = yM.input(yObjCB) + yM.span(typeof item.span!== 'undefined' ? item.span : '');
+				var htmlCBContent = yM.input(yObjCB) + yM.span(typeof item.span!== 'undefined' ? item.span : '')
 				html += yM.label(htmlCBContent);
 				tdClass += 'input-checkbox';
 			}
