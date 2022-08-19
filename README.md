@@ -11,25 +11,34 @@ Include script on html head
 example: 
 
 ``` javascript
+<!-- Third Party -->
+
+<script type="text/javascript" language="javascript" charset="UTF-8" src="js/jquery/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" language="javascript" charset="UTF-8" src="js/materialize/materialize.min.js"></script>
+<script type="text/javascript" language="javascript" charset="UTF-8" src="js/materialize/materialize-perfect-scrollbar.jquery.min.js"></script>
+<script type="text/javascript" language="javascript" charset="UTF-8" src="js/materialize/main.js"></script>
+<script type="text/javascript" language="javascript" charset="UTF-8" src="js/select2/select2.min.js"></script>
+<script type="text/javascript" language="javascript" charset="UTF-8" src="js/chart.js/Chart.bundle.min.js"></script>
+<script type="text/javascript" language="javascript" charset="UTF-8" src="js/cleave.js/cleave.min.js"></script>
+<script type="text/javascript" language="javascript" charset="UTF-8" src="js/moment.js/moment.js"></script>
+<script type="text/javascript" language="javascript" charset="UTF-8" src="js/floatthead/jquery.floatThead.min.js"></script>
+
+<!-- y.js script -->
 <script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.lang.id.js"></script>
 <script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.material.js"></script>
-<script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.web.js"></script>
 <script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.app.js"></script>
 <script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.loader.js"></script>
-<script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.panel.js"  ></script>
+<script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.panel.js" ></script>
+<script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.web.js"></script>
 <script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.form.js"></script>
 <script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.dashboard.js"></script>
 <script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.converter.js"></script>
-<script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/v.sidebar.js"></script>
-<script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/v.print.js"></script>
-<script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.autocomplete.js"></script>
 <script type="text/javascript" language="javascript" charset="UTF-8" src="js/framework/y.ready.js"></script>
-
 ```
 
 ### Prerequisites
 
-Include these libraries:
+Include these third party libraries:
 
 - materialize.js
 - jquery
