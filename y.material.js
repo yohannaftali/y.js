@@ -1,3 +1,5 @@
+// version=202203101721
+
 (function (window, undefined) {
     var document = window.document;
     var location = window.location;
@@ -6,11 +8,11 @@
     // Base Function
     Material.prototype.o = function (p) {
         p = typeof (p) !== 'undefined' ? p : {};
-        if(typeof p.overrideClass !== 'undefined'){
-            p.class =  p.overrideClass;
+        if (typeof p.overrideClass !== 'undefined') {
+            p.class = p.overrideClass;
             delete p.overrideClass;
         }
-        if (typeof (p) !== 'object') {  let content = p; p = { content: content }   }
+        if (typeof (p) !== 'object') { let content = p; p = { content: content } }
         return p;
     }
 
@@ -93,58 +95,58 @@
         p.class = typeof (p.class) !== 'undefined' ? cl + ' ' + p.class : cl;
         return this.m(p);
     }
+    // Element Geneator
     Material.prototype.e = function (p, el) {
         p = this.o(p);
         p.element = typeof (p.element) !== 'undefined' ? p.element : el;
         return this.m(p);
     }
 
-	Material.prototype.setInputValue = function (selector, value) {
+    Material.prototype.setInputValue = function (selector, value) {
         value = typeof (value) !== 'undefined' && value !== '' ? value : '';
         $(selector).val(value)
-        if($(selector).is("select")){
+        if ($(selector).is("select")) {
             $(selector).change();
             $(selector).siblings('input.select-dropdown.dropdown-trigger').val(value);
             $(selector).siblings('input.select-dropdown.dropdown-trigger').change();
         }
-        if($(selector).is(':checkbox'))
-        {
-            if(typeof value !== "boolean"){
-                if(typeof value === 'string' && value.toLowerCase() === 'true'){
-                    value = true    
+        if ($(selector).is(':checkbox')) {
+            if (typeof value !== "boolean") {
+                if (typeof value === 'string' && value.toLowerCase() === 'true') {
+                    value = true
                 }
-                if(typeof value === 'string' && value.toLowerCase() === 'false'){
-                    value = false    
+                if (typeof value === 'string' && value.toLowerCase() === 'false') {
+                    value = false
                 }
-                if(typeof variable !== 'boolean'){
+                if (typeof variable !== 'boolean') {
                     value = parseInt(value) > 0 ? true : false
-                }   
+                }
             }
             $(selector).prop("checked", value)
-            if(!value){
+            if (!value) {
                 $(selector).removeAttr('checked')
             }
-            else{
+            else {
                 $(selector).attr('checked', 'checked')
             }
         }
-		if (value !== '') {
-			$(selector).siblings('label').addClass('active');
-		}
-		else {
-			$(selector).siblings('label').removeClass('active');
+        if (value !== '') {
+            $(selector).siblings('label').addClass('active');
         }
-	};
-	Material.prototype.setTextValue = function (selector, value) {
-		if (typeof (value) !== 'undefined' && value !== '') {
-			$(selector).text(value);
-			$(selector).siblings('label').addClass('active');
-		}
-		else {
-			$(selector).text('');
-			$(selector).siblings('label').removeClass('active');
-		}
-	};
+        else {
+            $(selector).siblings('label').removeClass('active');
+        }
+    };
+    Material.prototype.setTextValue = function (selector, value) {
+        if (typeof (value) !== 'undefined' && value !== '') {
+            $(selector).text(value);
+            $(selector).siblings('label').addClass('active');
+        }
+        else {
+            $(selector).text('');
+            $(selector).siblings('label').removeClass('active');
+        }
+    };
 
     Material.prototype.guid = function () {
         let r = function () { return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1); };
@@ -180,7 +182,7 @@
     Material.prototype.textarea = function (p) { return this.e(p, 'textarea'); }
     Material.prototype.span = function (p) { return this.e(p, 'span'); }
     Material.prototype.canvas = function (p) { return this.e(p, 'canvas'); }
-    
+
     // Class
     Material.prototype.row = function (p) { return this.c(p, 'row'); }
     Material.prototype.col = function (p) { return this.c(p, 'col'); }
@@ -220,14 +222,14 @@
         p.content = typeof (p.content) !== 'undefined' ? p.content : '';
         return this.m(p);
     }
-    Material.prototype.inputCheckbox = function(p){
+    Material.prototype.inputCheckbox = function (p) {
         p = this.o(p);
         p.element = typeof (p.element) !== 'undefined' ? p.element : 'label';
         p.class = typeof (p.class) !== 'undefined' ? 'label-checkbox ' + p.class : 'label-chekcbox';
-    
+
         // Checkbox
         let pCheckbox = {}
-        if(typeof p.checkbox !== 'undefined'){
+        if (typeof p.checkbox !== 'undefined') {
             pCheckbox = p.checkbox;
             delete p.checkbox;
         }
@@ -270,7 +272,7 @@
         p.content = checkbox + span;
         return this.m(p);
     }
-    Material.prototype.checkbox = function(p){
+    Material.prototype.checkbox = function (p) {
         p = this.o(p);
         p.element = typeof (p.element) !== 'undefined' ? p.element : 'input';
         p.type = typeof (p.type) !== 'undefined' ? p.type : 'checkbox';
@@ -278,14 +280,14 @@
         p.checked = typeof (p.checked) !== 'undefined' ? p.checked : 'checked';
         return this.m(p);
     }
-    Material.prototype.inputRadio = function(p){
+    Material.prototype.inputRadio = function (p) {
         p = this.o(p);
         p.element = typeof (p.element) !== 'undefined' ? p.element : 'label';
         p.class = typeof (p.class) !== 'undefined' ? 'label-radio ' + p.class : 'label-radio';
         let guid = this.guid();
         // Radio
         let pRadio = {}
-        if(typeof p.checkbox !== 'undefined'){
+        if (typeof p.checkbox !== 'undefined') {
             pRadio = p.radio;
             delete p.radio;
         }
@@ -321,7 +323,7 @@
             pRadio.name = p.name;
             delete p.name;
         }
-    
+
         if (typeof p.addClassRadio !== 'undefined') {
             pRadio.addClass = p.addClassRadio;
             delete p.addClassRadio;
@@ -342,7 +344,7 @@
         p.content = radioElement + span;
         return this.m(p);
     }
-    Material.prototype.radio = function(p){
+    Material.prototype.radio = function (p) {
         p = this.o(p);
         p.element = typeof (p.element) !== 'undefined' ? p.element : 'input';
         p.type = typeof (p.type) !== 'undefined' ? p.type : 'radio';
@@ -363,16 +365,16 @@
         p.content = typeof (p.content) !== 'undefined' ? p.content : '';
         return this.m(p);
     }
-    Material.prototype.inputFieldSelect=function(p){
+    Material.prototype.inputFieldSelect = function (p) {
         p = this.o(p);
         p.element = typeof (p.element) !== 'undefined' ? p.element : 'div';
         p.class = typeof (p.class) !== 'undefined' ? 'input-field ' + p.class : 'input-field';
-    
+
         // Select
         var pSelect = {}
-        if(typeof p.select !== 'undefined'){
-        pSelect = p.select;
-        delete p.select;
+        if (typeof p.select !== 'undefined') {
+            pSelect = p.select;
+            delete p.select;
         }
         // Select - id
         if (typeof p.idSelect !== 'undefined') {
@@ -380,7 +382,7 @@
             delete p.idSelect;
         }
         if (typeof pSelect.id === 'undefined' && typeof p.id !== 'undefined') {
-             pSelect.id = p.id;
+            pSelect.id = p.id;
             delete p.id;
         }
         pSelect.id = typeof (pSelect.id) !== 'undefined' ? pSelect.id : 'select-' + this.guid();
@@ -401,7 +403,7 @@
 
         // Icon
         var pIcon = false;
-        if(typeof(p.icon) !== 'undefined' && p.icon && p.icon !== ''){
+        if (typeof (p.icon) !== 'undefined' && p.icon && p.icon !== '') {
             pIcon = {
                 content: p.icon,
                 class: 'material-icons prefix'
@@ -409,17 +411,17 @@
             delete p.icon;
         }
         var icon = '';
-        if(pIcon){
+        if (pIcon) {
             icon = this.icon(pIcon);
         }
 
         // Label
         var pLabel = {}
-        if(typeof p.label !== 'undefined'){
-            if(typeof p.label !=='string'){
+        if (typeof p.label !== 'undefined') {
+            if (typeof p.label !== 'string') {
                 pLabel = p.label;
             }
-            else{
+            else {
                 pLabel.content = typeof (p.label) !== 'undefined' ? p.label : '';
             }
             delete p.label;
@@ -460,16 +462,16 @@
         p.content = icon + select + label + helperText + characterCounter;
         return this.m(p);
     }
-    Material.prototype.select=function(p){
+    Material.prototype.select = function (p) {
         p = this.o(p);
         p.element = typeof (p.element) !== 'undefined' ? p.element : 'select';
         p.content = typeof (p.content) !== 'undefined' ? p.content : '';
         return this.m(p);
     }
-    Material.prototype.option=function(p){
+    Material.prototype.option = function (p) {
         p = this.o(p);
         p.element = typeof p.element !== 'undefined' ? p.element : 'option';
-        if(typeof p.label !== 'undefined'){
+        if (typeof p.label !== 'undefined') {
             p.content = p.label
             delete p.label;
         }
@@ -485,7 +487,7 @@
 
         // Input
         var pInput = {}
-        if(typeof p.input !== 'undefined'){
+        if (typeof p.input !== 'undefined') {
             pInput = p.input;
             delete p.input;
         }
@@ -534,7 +536,7 @@
 
         // Icon
         var pIcon = false;
-        if(typeof(p.icon) !== 'undefined' && p.icon && p.icon !== ''){
+        if (typeof (p.icon) !== 'undefined' && p.icon && p.icon !== '') {
             pIcon = {
                 content: p.icon,
                 class: 'material-icons prefix'
@@ -542,21 +544,21 @@
             delete p.icon;
         }
         var icon = '';
-        if(pIcon){
+        if (pIcon) {
             icon = this.icon(pIcon);
         }
 
         // Label
         var pLabel = {}
-        if(typeof p.label !== 'undefined'){
-            if(typeof p.label !=='string'){
+        if (typeof p.label !== 'undefined') {
+            if (typeof p.label !== 'string') {
                 pLabel = p.label;
             }
-            else{
+            else {
                 pLabel.content = typeof (p.label) !== 'undefined' ? p.label : '';
             }
             delete p.label;
-        }    
+        }
         pLabel.for = typeof pLabel.for !== 'undefined' ? pLabel.for : pInput.id;
         if (typeof p.idLabel !== 'undefined') {
             pLabel.id = p.idLabel;
@@ -571,7 +573,7 @@
             delete p.addClassLabel
         }
         var label = this.label(pLabel);
-        
+
         // HelperText
         var helperText = '';
         if (typeof (p.helperText) !== 'undefined') {
@@ -610,43 +612,43 @@
             for (var i in p.collectionItem) {
                 let item = typeof p.collectionItem && typeof p.collectionItem[i] !== 'undefined' ? p.collectionItem[i] : '';
                 let data = undefined
-                if(typeof p.collectionData !== 'undefined'){
+                if (typeof p.collectionData !== 'undefined') {
                     data = typeof p.collectionData && typeof p.collectionData[i] !== 'undefined' ? p.collectionData[i] : undefined;
                 }
                 let type = undefined
-                if(typeof p.collectionType !== 'undefined'){
+                if (typeof p.collectionType !== 'undefined') {
                     type = typeof p.collectionType && typeof p.collectionType[i] !== 'undefined' ? p.collectionType[i] : undefined;
                 }
-                
-                
+
+
                 if (typeof p.collectionBadge !== 'undefined' && typeof p.collectionBadge[i] !== 'undefined' && p.collectionBadge[i] !== '') {
                     badge = this.span({
                         class: 'badge collection-item-badge',
                         content: p.collectionBadge[i]
                     })
-    
-                    if(typeof item === 'string'){
+
+                    if (typeof item === 'string') {
                         item = {
-                            content : item,
+                            content: item,
                             after: badge
                         }
                     }
-                    else if(typeof item === 'object') {
+                    else if (typeof item === 'object') {
                         item.span = badge
                     }
-                    if(typeof data !== 'undefined'){
+                    if (typeof data !== 'undefined') {
                         item.data = data
                     }
-                    if(typeof type !== 'undefined'){
+                    if (typeof type !== 'undefined') {
                         item.type = type
                     }
                 }
-                
+
                 collectionItem += this.collectionItem(item);
                 let collectionBadge = '';
-                
+
                 p.content += collectionBadge
-                
+
             }
             if (typeof (p.collectionBadge) !== 'undefined') {
                 delete p.collectionBadge;
@@ -673,46 +675,48 @@
     // Buttons and Icons
     Material.prototype.buttonGen = function (p, t) {
         p = this.o(p);
-        t = typeof(t) !== 'undefined' ? t : 'btn'
-        p.element = typeof (p.element) !== 'undefined' ? p.element : 'button';
-        p.class = typeof (p.class) !== 'undefined' ? t + ' ' + p.class : t + ' waves-effect waves-light';
-        var icon = ''
+        t = typeof (t) !== 'undefined' ? t : 'btn'
+        p.element = typeof (p.element) !== 'undefined' ? p.element : 'button'
+        p.class = typeof (p.class) !== 'undefined' ? t + ' ' + p.class : t + ' waves-effect waves-light'
+        let iconHtml = ''
         if (typeof p.icon !== 'undefined') {
-            var pIcon = this.o(p.icon);
-            if(t !== 'btn-floating'){
-                pIcon.position = typeof pIcon.position !== 'undefined' ? pIcon.position : 'left';
+            const pIcon = this.o(p.icon)
+            if (t !== 'btn-floating') {
+                pIcon.position = typeof pIcon.position !== 'undefined' ? pIcon.position : 'left'
             }
-            icon = yM.icon(pIcon);
-            delete p.icon;
+            else {
+                pIcon.position = typeof pIcon.position !== 'undefined' ? pIcon.position : 'center'
+            }
+            iconHtml = yM.icon(pIcon)
+            delete p.icon
         }
-        p.content = typeof (p.content) !== 'undefined' ? p.content + icon : icon;
+        p.content = typeof (p.content) !== 'undefined' ? p.content + iconHtml : iconHtml;
         return this.m(p);
     }
     Material.prototype.a = function (p) {
         p = this.o(p);
-        
+
         p.element = typeof (p.element) !== 'undefined' ? p.element : 'a';
-        if(typeof p.label !== 'undefined'){
+        if (typeof p.label !== 'undefined') {
             p.content = p.label;
             delete p.label;
         }
-        p.content = typeof (p.content) !== 'undefined' ? p.content : typeof (p.href) !== 'undefined' ? p.href: '';
+        p.content = typeof (p.content) !== 'undefined' ? p.content : typeof (p.href) !== 'undefined' ? p.href : '';
         return this.buttonGen(p, 'btn');
     }
     Material.prototype.button = function (p) { return this.buttonGen(p); }
-    Material.prototype.buttonFlat = function (p) { return this.buttonGen(p, 'btn-flat'); } 
+    Material.prototype.buttonFlat = function (p) { return this.buttonGen(p, 'btn-flat'); }
     Material.prototype.buttonLarge = function (p) { return this.buttonGen(p, 'btn-large'); }
     Material.prototype.buttonSmall = function (p) { return this.buttonGen(p, 'btn-small'); }
     Material.prototype.buttonFloating = function (p) { return this.buttonGen(p, 'btn-floating'); }
     Material.prototype.icon = function (p) {
-        p = this.o(p);
-        p.element = typeof (p.element) !== 'undefined' ? p.element : 'i';
-        p.class = typeof (p.class) !== 'undefined' ? p.class : 'material-icons';
-        if (typeof p.position !== 'undefined') {
-            p.class += ' ' + p.position
-            delete p.position
-        }
-        //p.content = typeof (p.content) !== 'undefined' ? p.content : '';
+        p = this.o(p)
+        p.element = typeof (p.element) !== 'undefined' ? p.element : 'i'
+        p.class = typeof (p.class) !== 'undefined' ? p.class : 'material-icons'
+        const lastClass = (typeof p.class === 'string' ? p.class : '').split(' ').pop()
+        p.class = lastClass === p.position ? p.class : p.class + ' ' + p.position
+        delete p.position
+        p.content = typeof (p.content) !== 'undefined' ? p.content : '';
         return this.m(p);
     }
 
@@ -889,42 +893,42 @@
         p.class = typeof (p.class) !== 'undefined' ? p.class + ' gap-patch' : 'gap-patch';
         return this.m(p);
     }
-    Material.prototype.modalForm = function(p){
+    Material.prototype.modalForm = function (p) {
         p = this.o(p);
         let pForm = {};
-        if(typeof p.form !== 'undefined'){
+        if (typeof p.form !== 'undefined') {
             pForm = p.form
             delete p.form;
         }
         pForm.content = typeof pForm.content !== 'undefined' ? pForm.content : '';
-        if(typeof p.title !== 'undefined'){
+        if (typeof p.title !== 'undefined') {
             pForm.content += this.h5(p.title);
             delete p.title;
         }
-        
-        if(typeof p.field !== 'undefined'){
+
+        if (typeof p.field !== 'undefined') {
             let fieldContent = '';
-            if(Array.isArray(p.field)){
-                for(let i in p.field){
-                    fieldContent += this.row( this.inputField(p.field[i]) );
+            if (Array.isArray(p.field)) {
+                for (let i in p.field) {
+                    fieldContent += this.row(this.inputField(p.field[i]));
                 }
             }
-            else{
-                fieldContent = this.row( this.inputField(p.field) );
+            else {
+                fieldContent = this.row(this.inputField(p.field));
             }
             pForm.content += this.div(fieldContent);
             delete p.field;
         }
         let footer = '';
-        if(typeof p.button !== 'undefined'){
+        if (typeof p.button !== 'undefined') {
             let footerContent = '';
-            if(Array.isArray(p.button)){
-                for(let i in p.button){
-                    footerContent+=this.buttonFlat(p.button[i]);
+            if (Array.isArray(p.button)) {
+                for (let i in p.button) {
+                    footerContent += this.buttonFlat(p.button[i]);
                 }
             }
-            else{
-                footerContent=this.buttonFlat(p.button);
+            else {
+                footerContent = this.buttonFlat(p.button);
             }
             footer = this.modalFooter(footerContent);
             delete p.button;
@@ -936,7 +940,7 @@
     Material.prototype.infoBox = function (options) {
         var that = this;
         options = typeof (options) !== 'undefined' ? options : {};
-        var width = typeof (options.width) !== 'undefined' ? options.width : '3' ;
+        var width = typeof (options.width) !== 'undefined' ? options.width : '3';
         var parent = typeof (options.parent) !== 'undefined' ? options.parent : false;
         var onClick = typeof (options.onClick) !== 'undefined' ? options.onClick : false;
         var moduleTarget = typeof (options.module) !== 'undefined' ? options.module : false;
@@ -967,9 +971,9 @@
             }
         ])
         const boxObj = {
-            element: 'a', class: 'info-box hoverable '+ addClass+ ' ', content: boxContent
+            element: 'a', class: 'info-box hoverable ' + addClass + ' ', content: boxContent
         }
-        if(typeof href !== 'undefined') {
+        if (typeof href !== 'undefined') {
             boxObj.href = href
         }
         wrapper.content = yHtml(boxObj);
@@ -990,7 +994,7 @@
         }
         return h;
     }
-    
+
     Material.prototype.infoBox2 = function (options) {
         var that = this;
         options = typeof (options) !== 'undefined' ? options : {};
@@ -1044,4 +1048,4 @@
         window.yMaterial = new Material();
         window.yM = yMaterial;
     }
-})(window);
+})(window)
