@@ -1,3 +1,5 @@
+// version=202203111200
+
 (function (window, undefined) {
 	var document = window.document;
 	var location = window.location;
@@ -21,7 +23,43 @@
 			y(window).on('load', completed);
 		}
 	};
-	var _htmlAttr = new Array('accept', 'action', 'alt', 'autocomplete', 'background', 'bind', 'cell', 'cells', 'checked', 'class', 'col', 'cols', 'colspan', 'controller', 'data', 'data-init', 'data-collapsible', 'data-target', 'data-tooltip', 'data-position', 'dir', 'disabled', 'display', 'draggable', 'dropzone', 'enctype', 'for', 'group', 'height', 'hidden', 'href', 'ico', 'id', 'lab', 'lang', 'label', 'last', 'max', 'maxlength', 'min', 'mod', 'name', 'next', 'onclick', 'parent', 'pattern', 'prev', 'progress', 'readonly', 'tag', 'type', 'row', 'rows', 'rowspan', 'sign', 'selected', 'src', 'step', 'spellcheck', 'style', 'tabindex', 'title', 'translate', 'use-content','value', 'width');
+	//var htmlAttr = new Array('accept', 'action', 'alt', 'autocomplete', 'background', 'bind', 'cell', 'cells', 'checked', 'class', 'col', 'cols', 'colspan', 'controller', 'data', 'data-init', 'data-collapsible', 'data-filename', 'data-sheetname', 'data-filetype', 'data-target', 'data-tooltip', 'data-position', 'dir', 'disabled', 'display', 'draggable', 'dropzone', 'enctype', 'for', 'group', 'height', 'hidden', 'href', 'ico', 'id', 'lab', 'lang', 'label', 'last', 'max', 'maxlength', 'min', 'mod', 'name', 'next', 'onclick', 'parent', 'pattern', 'prev', 'progress', 'readonly', 'tag', 'type', 'row', 'rows', 'rowspan', 'sign', 'selected', 'src', 'step', 'spellcheck', 'style', 'tabindex', 'title', 'translate', 'use-content', 'value', 'width');
+	
+	const htmlAttr = new Array(
+		'accept', 'accept-charset', 'accesskey', 'action', 'alt', 'async', 'autocomplete', 'autofocus', 'autoplay',
+		'background', 'bind',
+		'cell', 'cells', 'charset', 'checked', 'cite', 'class', 'col', 'cols', 'colspan', 'contenteditable', 'controls', 'controller', 'coords',
+		'data', 'data-init', 'data-collapsible', 'data-filename', 'data-sheetname', 'data-filetype', 'data-target', 'data-tooltip', 'data-position',
+		'datetime', 'default', 'defer', 'dir', 'dirname', 'disabled', 'download', 'display', 'draggable', 'dropzone',
+		'enctype',
+		'for', 'form', 'formaction',
+		'group',
+		'headers', 'height', 'hidden', 'high', 'href', 'hreflang', 'http-equiv',
+		'ico', 'id', 'ismap',
+		'kind',
+		'lab', 'label', 'lang', 'last', 'list', 'loop', 'low',
+		'max', 'maxlength', 'media', 'method', 'min', 'multiple', 'muted', 'mod',
+		'name', 'next', 'novalidate',
+	 	'onabort', 'onafterprint', 
+	 		'onbeforeprint', 'onbeforeunload', 'onblur', 
+	 		'oncanplay', 'oncanplaythrough', 'onchange', 'onclick', 'oncontextmenu', 'oncopy', 'oncuechange', 'oncut', 
+	 		'ondblclick', 'ondrag', 'ondragend', 'ondragenter', 'ondragleave', 'ondragover', 'ondragstart', 'ondrop', 'ondurationchange',
+	 		'onemptied', 'onended', 'onerror', 
+	 		'onfocus', 'onhashchange', 'oninput',
+	 		'onoffline', 'ononline',
+	 		'onpagehide', 'onpageshow', 'onpaste', 'onpause', 'onplay', 'onplaying', 'onpopstate', 'onprogress',
+	 		'onratechange','onreset', 'onresize',
+	 		'onscroll', 'onsearch',  'onseeked', 'onseeking', 'onselect', 'onstalled', 'onstorage', 'onsubmit', 'onsuspend', 
+	 		'ontimeupdate', 'ontoggle', 
+	 		'onunload', 'onvolumechange', 'onwaiting', 'onwheel',
+			'open', 'optimum', 
+		'parent', 'pattern', 'placeholder', 'poster', 'preload' ,'prev', 'progress',
+		'readonly', 'rel',  'required', 'reversed', 'row', 'rows', 'rowspan',
+		'sandbox', 'scope', 'selected', 'shape', 'sign', 'size', 'sizes', 'spellcheck', 'src', 'srcdoc', 'srclang', 'srcset', 'start', 'step', 'style',
+		'tabindex', 'tag', 'target', 'title', 'translate', 'type',
+		'usemap', 'use-content',
+		'value',
+		'width', 'wrap');
 	var _completed = function (callback) {
 		y(document).off('DOMContentLoaded', _completed);
 		y(window).off('load', _completed);
@@ -134,7 +172,7 @@
 		}
 		return false;
 	};
-	var y_print_html = function (html) {
+	var printHtml = function (html) {
 		var name = 'y_print_frame';
 		if (typeof window.y_print_frame !== 'undefined') {
 			delete window.y_print_frame;
@@ -179,56 +217,90 @@
 	// yHtml Engine
 	// Transform object to html code
 	//------------------------------------------------------------------------------
-	var _getCode = function (p) {
-		var attr = _htmlAttr
-		var e = p.element;
-		var a = '<' + e + ' ';
-		var b = '>';
-		var c = '</' + e + b;
-		var d = ' />';
-		var s = '';
-		var t = '';
-		var tb = '';
-		var ta = '';
-		var u = 'undefined';
-		var h = function (x, y) { return x + '="' + y + '" '; };
-		let v = function (x, y) { return typeof (x[y]) !== u ? x[y] : '' };
-		let w = function (x, y) { return x !== '' ? x : y };
-		t = v(p, 'content');
-		t = w(t, v(p, 'rel'));
-		t = w(t, v(p, 'rev'));
-		t = w(t, v(p, 'href'));
-		if (typeof p.before != u) { tb = p.before; }
-		if (typeof p.after != u) { ta = p.after; }
-		for (var i in attr) {
-			if (typeof p[attr[i]] !== u) {
-				s += h(attr[i], p[attr[i]]);
-			}
+	const getCode = function (p) {
+		const u = 'undefined'
+		const attr = htmlAttr
+		const e = p.element
+		const a = '<' + e + ' '
+		const b = '>'
+		const c = '</' + e + b
+		const d = ' />'
+		
+		const h = function (x, y) { return x + '="' + y + '" ' }
+		const v = function (x, y) { return typeof (x[y]) !== u ? x[y] : '' }
+		const w = function (x, y) { return x !== '' ? x : y }
+		let s = ''
+		let t = ''
+
+		t = v(p, 'content')
+		t = w(t, v(p, 'rel'))
+		t = w(t, v(p, 'rev'))
+		t = w(t, v(p, 'href'))
+		const tb = typeof p.before != u ? p.before : ''
+		const ta = typeof p.after != u ? p.after : ''
+		for (let i in attr) {
+			s += typeof p[attr[i]] !== u ? h(attr[i], p[attr[i]]) : ''
 		}
-		if (typeof p.style_width != u) {
-			s += 'style="width:' + p.style_width + '"';
-		}
-		if (typeof p.style_height != u) {
-			s += 'style="height:' + p.style_height + '"';
-		}
+		s += typeof p.style_width != u ? 'style="width:' + p.style_width + '"' : ''
+		s += typeof p.stylewidth != u ? 'style="width:' + p.stylewidth + '"' : ''
+		s += typeof p.style_height != u ? 'style="height:' + p.style_height + '"' : ''
+		s += typeof p.styleHeight != u ? 'style="height:' + p.styleHeight + '"' : ''
 		if (!(e == 'input' || e == 'img' || e == 'link')) {
 			return a + s + b + tb + t + ta + c;
 		} else {
 			return a + s + d;
 		}
 	};
-	var _htmlCode = function (p) {
+	// var getCode = function (p) {
+	// 	var attr = _htmlAttr
+	// 	var e = p.element;
+	// 	var a = '<' + e + ' ';
+	// 	var b = '>';
+	// 	var c = '</' + e + b;
+	// 	var d = ' />';
+	// 	var s = '';
+	// 	var t = '';
+	// 	var tb = '';
+	// 	var ta = '';
+	// 	var u = 'undefined';
+	// 	var h = function (x, y) { return x + '="' + y + '" '; };
+	// 	let v = function (x, y) { return typeof (x[y]) !== u ? x[y] : '' };
+	// 	let w = function (x, y) { return x !== '' ? x : y };
+	// 	t = v(p, 'content');
+	// 	t = w(t, v(p, 'rel'));
+	// 	t = w(t, v(p, 'rev'));
+	// 	t = w(t, v(p, 'href'));
+	// 	if (typeof p.before != u) { tb = p.before; }
+	// 	if (typeof p.after != u) { ta = p.after; }
+	// 	for (var i in attr) {
+	// 		if (typeof p[attr[i]] !== u) {
+	// 			s += h(attr[i], p[attr[i]]);
+	// 		}
+	// 	}
+	// 	if (typeof p.style_width != u) {
+	// 		s += 'style="width:' + p.style_width + '"';
+	// 	}
+	// 	if (typeof p.style_height != u) {
+	// 		s += 'style="height:' + p.style_height + '"';
+	// 	}
+	// 	if (!(e == 'input' || e == 'img' || e == 'link')) {
+	// 		return a + s + b + tb + t + ta + c;
+	// 	} else {
+	// 		return a + s + d;
+	// 	}
+	// };
+	const htmlCode = function (p) {
 		var r = '';
 		if (Array.isArray(p)) {
 			for (var i in p) {
-				r += _getCode(p[i]);
+				r += getCode(p[i]);
 			}
 		}
 		else {
-			r = _getCode(p);
+			r = getCode(p);
 		}
 		return r;
-	};
+	}
 
 	//------------------------------------------------------------------------------
 	// yStyle Engine
@@ -620,7 +692,7 @@
 	};
 	function showPreloader() { document.getElementById('ajax-preloader').style.display = 'block' }
 	function hidePreloader() { document.getElementById('ajax-preloader').style.display = 'none' }
-	function y_handle_paste(obj) {
+	function handlePaste(obj) {
 		setTimeout(function () { y_get_paste_value(obj); }, 10);
 	}
 	function y_get_paste_value(obj) {
@@ -643,7 +715,7 @@
 		}
 		return false;
 	}
-	function y_grid_paste(obj, paste_value) {
+	function gridPaste(obj, paste_value) {
 		var name = $(obj).attr('name');
 		var arr = typeof name !== 'undefined' ? name.split('[') : [];
 		if (typeof arr[0] !== 'undefined' && typeof arr[1] !== 'undefined') {
@@ -687,11 +759,11 @@
 		var d = yGetDate();
 		return d + ' ' + t;
 	}
-	
-	var getAjax = function (url, data, success, complete, error, jsonError, wait_hide, timeout) {
-		wait_hide = typeof wait_hide !== 'undefined' ? wait_hide : false;
+
+	const getAjax = function (url, data, success, complete, error, jsonError, withoutPreloader, timeout) {
+		withoutPreloader = typeof withoutPreloader !== 'undefined' ? withoutPreloader : false;
 		if (typeof url !== 'undefined' && url !== '') {
-			if (!wait_hide) { showPreloader(); }
+			if (!withoutPreloader) { showPreloader(); }
 			success = typeof success !== 'undefined' ? success : function () { };
 			success = typeof success !== 'function' ? function () { } : success;
 			complete = typeof complete !== 'undefined' ? complete : function () { };
@@ -719,7 +791,7 @@
 						console.log('controller: ' + url);
 						error(ajax.status);
 					}
-					if (!wait_hide) { hidePreloader(); }
+					if (!withoutPreloader) { hidePreloader(); }
 					complete();
 				}
 			};
@@ -742,7 +814,7 @@
 	const promiseGet = function (url, data) {
 		if (typeof url !== 'undefined' && url !== '') {
 			data = typeof data !== 'undefined' && data !== '' ? '?' + data : ''
-			return new Promise( (resolve, reject) => {
+			return new Promise((resolve, reject) => {
 				const ajax = new XMLHttpRequest()
 				ajax.open('GET', url + data, true) // true = asynchronous
 				ajax.setRequestHeader("X-Requested-With", "XMLHttpRequest")
@@ -773,13 +845,13 @@
 					reject(Error(e))
 				}
 			})
-			
+
 		}
 		else {
 			reject(Error('Error: undefined url'))
 		}
 	};
-	var getAjaxText = function (url, data, success, complete, error) {
+	const getAjaxText = function (url, data, success, complete, error) {
 		if (typeof url !== 'undefined' && url !== '') {
 			showPreloader();
 			success = typeof success !== 'undefined' ? success : function () { };
@@ -812,7 +884,7 @@
 			return;
 		}
 	};
-	var postAjax = function (url, data, success, complete, error, jsonError) {
+	const postAjax = function (url, data, success, complete, error, jsonError) {
 		showPreloader();
 		success = typeof success !== 'undefined' ? success : function () { };
 		success = typeof success !== 'function' ? function () { } : success;
@@ -906,7 +978,7 @@
 			}
 		};
 	};
-	function y_post_action(form, target, object, with_print) {
+	function postAction(form, target, object, with_print) {
 		with_print = typeof with_print !== 'undefined' ? with_print : false;
 		$(form).submit(function (event) {
 			event.preventDefault();
@@ -914,14 +986,14 @@
 			if (r === true) {
 				var data_form = $(form + ' :not(.input-filter):not(.input-filter-readonly):not(.unserialize)').serialize();
 				var callback = function (status) {
-					y_show_ajax_result(status, with_print);
+					showAjaxResult(status, with_print);
 					if (object) { object.reset(form); }
 				};
 				postAjax(target, data_form, callback);
 			}
 		});
 	}
-	function y_show_ajax_result(status, with_print, customTitle) {
+	function showAjaxResult(status, with_print, customTitle) {
 		with_print = typeof with_print !== 'undefined' ? with_print : false;
 		customTitle = typeof customTitle !== 'undefined' ? customTitle : false;
 		if (status) {
@@ -949,11 +1021,11 @@
 			var time = d + ' ' + t;
 			webApp.addNotification(title, string, true, true, time);
 			if (with_print !== false) {
-				y_print_html(string);
+				printHtml(string);
 			}
 		}
 	}
-	function prevent_key_enter(selector) {
+	function preventKeyEnter(selector) {
 		_(selector).on("keypress", function (e) {
 			if (e.which == 13) { e.preventDefault(); }
 			if (e.which == 96) { e.preventDefault(); _(selector).submit(); }
@@ -968,11 +1040,11 @@
 		}
 		return p;
 	}
-	function y_object_clone(object) {
+	function cloneObject(object) {
 		var object_copy = JSON.parse(JSON.stringify(object));
 		return object_copy;
 	}
-	function y_message(title, text, id) {
+	function createMessageBox(title, text, id) {
 		if (!id) id = 'y_message-' + (new Date()).getTime() + '-' + Math.floor((Math.random() * 100) + 1);
 		$('.y_message_box').remove();
 		var h = yHtml([
@@ -989,7 +1061,7 @@
 			$('#' + id).hide();
 		});
 	}
-	y_command = function (wrapper, button_id, callback) {
+	const setCommand = function (wrapper, button_id, callback) {
 
 		if (typeof callback !== 'undefined') {
 			wrapper.off('click', button_id);
@@ -1003,7 +1075,7 @@
 			callback = button_id;
 			button_id = wrapper;
 			wrapper = $(document.body);
-			y_command(wrapper, button_id, callback);
+			setCommand(wrapper, button_id, callback);
 		}
 		else if (typeof wrapper !== 'undefined' && typeof wrapper === 'object') {
 			a = typeof wrapper.wrapper !== 'undefined' ? wrapper.wrapper : $(document.body);
@@ -1012,7 +1084,7 @@
 					if (typeof wrapper.data[i].button !== 'undefined' && typeof wrapper.data[i].callback !== 'undefined' && typeof wrapper.data[i].callback === 'function') {
 						button_id = wrapper.data[i].button;
 						callback = wrapper.data[i].callback;
-						y_command(a, button_id, callback);
+						setCommand(a, button_id, callback);
 					}
 				}
 			}
@@ -1071,7 +1143,7 @@
 			composedDate.getMonth() == m &&
 			composedDate.getFullYear() == y;
 	}
-	const is_integer = function (value) {
+	const isInteger = function (value) {
 		if ((undefined === value) || (null === value)) {
 			return false;
 		}
@@ -1082,44 +1154,60 @@
 	const useParam = function (object, param) {
 		for (var field in param) { if (param.hasOwnProperty(field)) { object[field] = param[field]; } }
 	}
+	// check whether is item.key = true
+	const isParam = function (item, param, trueResult, falseResult) {
+		trueResult = typeof trueResult !== 'undefined' ? trueResult : true
+		falseResult = typeof falseResult !== 'undefined' ? falseResult : false
+		return typeof item[param] !== 'undefined' && (item[param] === 'yes' || item[param] === true) ? true : false
+	}
 	const elvis = function (a, b) {
 		return typeof a !== 'undefined' ? a : typeof b !== 'undefined' ? b : false
 	}
 	const getCaret = function (el) { if (el.selectionStart) { return el.selectionStart; } else if (document.selection) { el.focus(); const r = document.selection.createRange(); if (r == null) { return 0; } const re = el.createTextRange(), rc = re.duplicate(); re.moveToBookmark(r.getBookmark()); rc.setEndPoint('EndToStart', re); return rc.text.length; } return 0; }
 	const setCaret = function (el, pos) { if (el != null) { if (el.createTextRange) { const range = el.createTextRange(); range.move('character', pos); range.select(); } else { if (el.selectionStart) { el.focus(); el.setSelectionRange(pos, pos); } else { el.focus() } } } }
 	if (typeof window === 'object' && typeof window.document === 'object') {
-		window.y_html = _htmlCode;
-		window.yHtml = _htmlCode;
-		window._ = window.y = y;
-		window.__ = y(document);
-		window.yClock = yClock;
-		window.yGetTimeStamp = yGetTimeStamp;
-		window.showPreloader = showPreloader;
-		window.hidePreloader = hidePreloader;
-		window.y_wait_show = showPreloader;
-		window.y_wait_hide = hidePreloader;
-		window.y_handle_paste = y_handle_paste;
-		window.y_grid_paste = y_grid_paste;
-		window.y_post_action = y_post_action;
-		window.y_show_ajax_result = y_show_ajax_result;
-		window.prevent_key_enter = prevent_key_enter;
-		window.y_object_clone = y_object_clone;
-		window.cloneObject = y_object_clone;
-		window.yLog = yLog;
-		window.y_message = y_message;
-		window.y_print_html = y_print_html;
-		window.promiseGet = promiseGet;
-		window.getAjax = getAjax;
-		window.postAjax = postAjax;
-		window.postAjaxMultipart = postAjaxMultipart;
-		window.fileAjax = fileAjax;
-		window.y_command = y_command;
-		window.y_valid_numeric = y_valid_numeric;
-		window.y_valid_input_date = y_valid_input_date;
-		window.y_is_number = y_is_number;
-		window.is_integer = is_integer;
-		window.useParam = useParam;
-		window.yClickPosition = yClickPosition;
+		window.y_html = htmlCode
+		window.yHtml = htmlCode
+		window._ = window.y = y
+		window.__ = y(document)
+		window.yClock = yClock
+		window.yGetTimeStamp = yGetTimeStamp
+		window.showPreloader = showPreloader
+		window.y_wait_show = showPreloader
+		window.hidePreloader = hidePreloader
+		window.y_wait_hide = hidePreloader
+		window.handlePaste = handlePaste
+		window.y_handle_paste = handlePaste
+		window.gridPaste = gridPaste
+		window.y_grid_paste = gridPaste
+		window.postAction = postAction
+		window.y_post_action = postAction
+		window.showAjaxResult = showAjaxResult
+		window.y_show_ajax_result = showAjaxResult
+		window.preventKeyEnter = preventKeyEnter
+		window.prevent_key_enter = preventKeyEnter
+		window.cloneObject = cloneObject
+		window.y_object_clone = cloneObject
+		window.yLog = yLog
+		window.createMessageBox = createMessageBox
+		window.y_message = createMessageBox
+		window.y_print_html = printHtml
+		window.printHtml = printHtml
+		window.promiseGet = promiseGet
+		window.getAjax = getAjax
+		window.postAjax = postAjax
+		window.postAjaxMultipart = postAjaxMultipart
+		window.fileAjax = fileAjax
+		window.y_command = setCommand
+		window.setCommand = setCommand
+		window.y_valid_numeric = y_valid_numeric
+		window.y_valid_input_date = y_valid_input_date
+		window.y_is_number = y_is_number
+		window.is_integer = isInteger
+		window.isInteger = isInteger
+		window.useParam = useParam
+		window.isParam = isParam
+		window.yClickPosition = yClickPosition
 		window.elvis = elvis
 		window.getCaret = getCaret
 		window.setCaret = setCaret
