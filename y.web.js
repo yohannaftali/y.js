@@ -1,14 +1,34 @@
-(function (window, undefined) {
+// version = 2022031620
+// update version when updating module js
 
-    var document = window.document;
-    var location = window.location;
-    var _htmlTags = new Array('a', 'aside', 'blockquote', 'body', 'br', 'button', 'caption', 'cite', 'div', 'fieldset', 'footer', 'form', 'header', 'i', 'iframe', 'img', 'input', 'label', 'li', 'marquee', 'nav', 'ol', 'option', 'p', 'script', 'section', 'span', 'table', 'td', 'th', 'tr', 'textarea', 'title', 'ui', 'var', 'video');
+(function (window, undefined) {
+    const version = '2022031620'
+    const document = window.document
+    const location = window.location
+    const _htmlTags = new Array(
+        'a', 'aside',
+        'blockquote', 'body', 'br', 'button',
+        'canvas', 'caption', 'cite',
+        'div',
+        'fieldset', 'footer', 'form',
+        'header',
+        'i', 'iframe', 'img', 'input',
+        'label', 'li',
+        'marquee', 'meta',
+        'nav',
+        'ol', 'option',
+        'p',
+        'script', 'section', 'span', 'svg',
+        'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'title', 'tr',
+        'u', 'ul', 'ui',
+        'var', 'video', 'wbr'
+    );
 
     //------------------------------------------------------------------------------
     // web Engine
     // Create Web Framework
     //------------------------------------------------------------------------------
-    var web = function (data) {
+    const web = function (data) {
         this.data = data;
         this.init();
         this.spotlight = true;
@@ -16,7 +36,7 @@
         this.create_wait();
         this.create_paste();
         this.createPreloader()
-        this.createFormEditPassword();        
+        this.createFormEditPassword();
         this.initListener();
         this.instancesModal;
         this.instancesTapTarget;
@@ -25,27 +45,27 @@
         window.yData = data;
         this.showModuleCallback(document.getElementById('btn-module-home'))
     };
-    web.prototype.setClock = function(selector){
-        var that = this;
-        let t=this.getTime();
-        selector.innerHTML=t;
-        setTimeout(function(){
+    web.prototype.setClock = function (selector) {
+        const that = this;
+        let t = this.getTime();
+        selector.innerHTML = t;
+        setTimeout(function () {
             that.setClock(selector);
         }, 500);
-        
+
     }
-    web.prototype.getTime = function(){
-        var n=new Date();
-        var h=preZero(n.getHours());
-        var m=preZero(n.getMinutes());
-        function preZero(i){
-            var r=i<10?"0"+i:i;
+    web.prototype.getTime = function () {
+        const n = new Date();
+        const h = preZero(n.getHours());
+        const m = preZero(n.getMinutes());
+        function preZero(i) {
+            const r = i < 10 ? "0" + i : i;
             return r;
         }
-        return (h+":"+m);
+        return (h + ":" + m);
     }
     web.prototype.create_paste = function () {
-        var paste = this.createNode('textarea', 'y_paste', document.body);
+        const paste = this.createNode('textarea', 'y_paste', document.body);
         paste.style.position = 'absolute';
         paste.style.left = '-1000px';
         paste.style.top = '-1000px';
@@ -73,18 +93,20 @@
         wait.innerHTML = 'please wait...';
         wait.style.display = 'none';
     };
-    web.prototype.createPreloader = function(){
+    web.prototype.createPreloader = function () {
         yM.preloaderCircular({
             parent: 'body',
             id: 'ajax-preloader'
         })
         const obj = document.getElementById('ajax-preloader')
-        obj.style.display = 'none' 
-        obj.style.position = 'fixed'
-        obj.style.top = '50%'
-        obj.style.left = '50%'
-        obj.style.marginTop = '-25px'
-        obj.style.marginLeft = '-25px'
+        if(obj !== null && typeof obj !== 'undefined' && typeof obj.style !== 'undefined'){
+            obj.style.display = 'none'
+            obj.style.position = 'fixed'
+            obj.style.top = '50%'
+            obj.style.left = '50%'
+            obj.style.marginTop = '-25px'
+            obj.style.marginLeft = '-25px'
+        }
     }
     web.prototype.init = function () {
         var loaderWrapper = this.createNode('loader-wrapper', document.body);
@@ -95,7 +117,7 @@
         loaderRight.className = 'loader-section section-right';
         this.createHeader();
         this.createMain();
-        this.createFooter();        
+        this.createFooter();
         this.addNotification("<i class='material-icons tiny left'>verified_user</i><span>Login</span>", data.username + " is logged in", false, false);
         this.createNotificationBadge();
     };
@@ -144,20 +166,26 @@
         // - btn-side-nav
         var iconMenu = this.createNavItem('btn-side-nav', 'low_priority', ulLeft);
         iconMenu.iNode.className += ' light-blue-text text-lighten-5 button-menu-utama-default';
-        _('li-btn-side-nav').show();
+        const liBtnSideNav = document.getElementById('li-btn-side-nav')
+        if(typeof liBtnSideNav.style !== 'undefined'){
+            liBtnSideNav.style.display = 'block'
+        }
 
         // - Home
         var iconHome = this.createNavItem('btn-home', 'home', ulLeft);
         iconHome.iNode.className += ' light-blue-text text-lighten-5';
-        _('li-btn-home').show();
-        
+        const liBtnHome = document.getElementById('li-btn-home')
+        if(typeof liBtnHome.style !== 'undefined'){
+            liBtnHome.style.display = 'block'
+        }
+
         // Search Icon
         var iconSearch = this.createNavItem('btn-search', 'search', ulLeft);
         iconSearch.iNode.className += ' yellow-text text-lighten-3';
 
         let userTitle = this.createNode('li', 'title-user', ulLeft);
         userTitle.innerHTML = data.username;
-        userTitle.style.display = "none";        
+        userTitle.style.display = "none";
 
         let timeHeader = this.createNode('li', 'time-header', ulLeft);
         timeHeader.innerHTML = "";
@@ -168,7 +196,10 @@
         moduleTitle.className = 'title_modul_expand';
 
         this.createSearch(headerPage);
-        _('li-btn-search').hide();
+        const liBtnSearch = document.getElementById('li-btn-search')
+        if(typeof liBtnSearch.style !== 'undefined'){
+            liBtnSearch.style.display = 'none'
+        }
         // Right        
 
         // - Notification
@@ -193,44 +224,60 @@
         attrBelowOriginUser.value = "true";
         userMenu.aNode.setAttributeNode(attrDataTargetUser);
         userMenu.aNode.setAttributeNode(attrBelowOriginUser);
-         
+
         var ulUser = this.createNode('ul', 'user-dropdown', navHeader);
         ulUser.className = 'dropdown-content dropdown-custom';
-          
+
         // - Username Header Right
         var iconUserName = this.createDropdownItem('menubar_UserName_button', 'person', ulUser);
         var buttonUserName = this.createNode('UserName_setting', iconUserName.aNode);
-        buttonUserName.innerHTML = data.username;    
+        buttonUserName.innerHTML = data.username;
         // - Fullscreen
         var iconFullscreen = this.createDropdownItem('btn-fullscreen', 'settings_overscan', ulUser);
         var buttonFullscreen = this.createNode('fullscreen_setting', iconFullscreen.aNode);
-        buttonFullscreen.innerHTML = 'Fullscreen Mode';    
+        buttonFullscreen.innerHTML = 'Fullscreen Mode';
+
+        // - Clear Cache
+        var iconClearCache = this.createDropdownItem('btn-clear-cache', 'loop', ulUser);
+        var buttonClearCache = this.createNode('clear-cache_setting', iconClearCache.aNode);
+        buttonClearCache.innerHTML = 'Clear Cache';
+
+        // - Update information
+        // var iconUpdate = this.createDropdownItem('btn-information', 'sync_problem', ulUser);
+        // var buttonUpdate = this.createNode('update_setting', iconUpdate.aNode);
+        // buttonUpdate.innerHTML = 'Update Information';
+        // var attrUpdate = document.createAttribute("href");
+        // attrUpdate.value = "#software_update_information";
+        // iconUpdate.aNode.setAttributeNode(attrUpdate);  
+        // iconUpdate.aNode.className += ' waves-effect waves-light modal-trigger'; 
+
         // theme setting
-        var iconUserItem6 = this.createDropdownItem('user-theme-setting', 'palette', ulUser);            
-        var buttonThemeSetting = this.createNode('menubar_theme_setting', iconUserItem6.aNode);
-        buttonThemeSetting.innerHTML = 'Theme Setting';  
-        var attrHrefTheme = document.createAttribute("href");
-        attrHrefTheme.value = "#test_modal_euy";
-        iconUserItem6.aNode.setAttributeNode(attrHrefTheme);  
-        iconUserItem6.aNode.className += ' waves-effect waves-light modal-trigger'; 
+        // var iconUserItem6 = this.createDropdownItem('user-theme-setting', 'palette', ulUser);            
+        // var buttonThemeSetting = this.createNode('menubar_theme_setting', iconUserItem6.aNode);
+        // buttonThemeSetting.innerHTML = 'Theme Setting';  
+        // var attrHrefTheme = document.createAttribute("href");
+        // attrHrefTheme.value = "#test_modal_euy";
+        // iconUserItem6.aNode.setAttributeNode(attrHrefTheme);  
+        // iconUserItem6.aNode.className += ' waves-effect waves-light modal-trigger'; 
         // Support setting
-        var iconSupportItem6 = this.createDropdownItem('Support-Support-setting', 'help', ulUser);            
+        /* var iconSupportItem6 = this.createDropdownItem('Support-Support-setting', 'help', ulUser);            
         var buttonSupportSetting = this.createNode('menubar_Support_setting', iconSupportItem6.aNode);
         buttonSupportSetting.innerHTML = 'Support Apps';  
         var attrHrefSupport = document.createAttribute("href");
         attrHrefSupport.value = "http://itsupport.ptsenopati.com/open.php";
         iconSupportItem6.aNode.setAttributeNode(attrHrefSupport);  
-        iconSupportItem6.aNode.className += ' waves-effect waves-light modal-trigger'; 
+        iconSupportItem6.aNode.className += ' waves-effect waves-light modal-trigger';  */
+
         // Change Password
-        var iconUserItem2 = this.createDropdownItem('user-change-password', 'lock', ulUser);                
+        var iconUserItem2 = this.createDropdownItem('user-change-password', 'lock', ulUser);
         var buttonChangePassword = this.createNode('y_user_menu', iconUserItem2.aNode);
         buttonChangePassword.innerHTML = 'Change Password';
         var attrHrefChangePassword = document.createAttribute("href");
         attrHrefChangePassword.value = "#modal-form-change-password";
         iconUserItem2.aNode.setAttributeNode(attrHrefChangePassword);
-        iconUserItem2.aNode.className += ' waves-effect waves-light modal-trigger';        
+        iconUserItem2.aNode.className += ' waves-effect waves-light modal-trigger';
         // Logout
-        var iconUserItem5 = this.createDropdownItem('btn-logout', 'exit_to_app', ulUser);                
+        var iconUserItem5 = this.createDropdownItem('btn-logout', 'exit_to_app', ulUser);
         let buttonLogout = this.createNode('menubar_logout_button', iconUserItem5.aNode);
         buttonLogout.className += ' red-text text-lighten-3';
         buttonLogout.innerHTML = 'Logout';
@@ -420,56 +467,159 @@
         res.iNode = iNode;
         return res;
     };
-    web.prototype.createNotificationBadge = function (){
+    web.prototype.createNotificationBadge = function () {
         $('#li-btn-notification').append(
             yM.div({
                 id: 'notification-badge',
                 class: 'notification-badge',
                 content: '0'
             }
-        ));
+            ));
         this.hideNotificationBadge();
     }
-    web.prototype.showNotificationBadge = function (val){
-        val = typeof val !== 'undefined' ? val: parseInt($('#notification-badge').text()) + 1;
+    web.prototype.showNotificationBadge = function (val) {
+        val = typeof val !== 'undefined' ? val : parseInt($('#notification-badge').text()) + 1;
 
         $('#notification-badge').text(val);
         $('#notification-badge').show();
     }
-    web.prototype.hideNotificationBadge = function (){
+    web.prototype.hideNotificationBadge = function () {
         $('#notification-badge').text('0');
         $('#notification-badge').hide();
     }
-    web.prototype.addNotification = function (title, message, toast, pulse, time) {
-        toast = typeof (toast) !== 'undefined' ? toast : true;
-        pulse = typeof (pulse) !== 'undefined' ? pulse : true;
-        time = typeof (time) !== 'undefined' ? time : yGetTimeStamp();
+    web.prototype.addNotification = function (param, message, toast, pulse, time, displayLength) {
+        let title = ''
+        // notification
+        let notification = true
+        // toast
+        let inDuration = 300
+        let outDuration = 375
+        let classes = 'rounded'
+        let completeCallback = () => { }
+        let activationPercent = 0.8
+        // canvas
+        let canvas = false
+        let canvasNotification = false
+        let canvasToast = false
+        // callback after
+        let afterNotification = () => { }
+        let afterToast = () => { }
 
-        var c = yHtml([
-            {
-                element: 'li', class: 'card', content: yHtml([
-                    {
-                        element: 'div', class: 'card-content', content: yHtml([
-                            { element: 'p', class: 'card-title', content: title },
-                            { element: 'p', class: 'timestamp', content: time },
-                            { element: 'p', content: message }
-                        ])
-                    }
-                ])
+        if (typeof param === 'object' && !Array.isArray(param) && param !== null) {
+            title = typeof param['title'] !== 'undefined' ? param['title'] : ''
+            message = typeof param['message'] !== 'message' ? param['message'] : ''
+            time = typeof param['time'] !== 'undefined' ? param['time'] : yGetTimeStamp()
+            // notification
+            notification = typeof param['notification'] !== 'undefined' ? param['notification'] : notification
+            pulse = typeof param['pulse'] !== 'undefined' ? param['pulse'] : true
+            // toast
+            toast = typeof param['toast'] !== 'undefined' ? param['toast'] : true
+            // toast parameter
+            displayLength = typeof param['displayLength'] !== 'undefined' ? param['displayLength'] : displayLength
+            inDuration = typeof param['inDuration'] !== 'undefined' ? param['inDuration'] : inDuration
+            outDuration = typeof param['outDuration'] !== 'undefined' ? param['outDuration'] : outDuration
+            classes = typeof param['classes'] !== 'undefined' ? param['classes'] : 'rounded'
+            completeCallback = typeof param['completeCallback'] !== 'undefined' ? param['completeCallback'] : completeCallback
+            activationPercent = typeof param['activationPercent'] !== 'undefined' ? param['activationPercent'] : activationPercent
+            // canvas
+            canvas = typeof param['canvas'] ? param['canvas'] : false
+            canvasNotification = typeof param['canvasNotification'] ? param['canvasNotification'] : false
+            canvasToast = typeof param['canvasToast'] ? param['canvasToast'] : false
+            // callback after
+            afterNotification = typeof param['afterNotification'] !== 'undefined' ? param['afterNotification'] : afterNotification
+            afterToast = typeof param['afterToast'] !== 'undefined' ? param['afterToast'] : afterToast
+        }
+        else {
+            title = typeof (param) !== 'undefined' ? param : ''
+            message = typeof (message) !== 'undefined' ? message : ''
+            time = typeof (time) !== 'undefined' ? time : yGetTimeStamp()
+            // notification
+            notification = true
+            pulse = typeof (pulse) !== 'undefined' ? pulse : true
+            // toast
+            toast = typeof (toast) !== 'undefined' ? toast : true
+            // toast parameter
+            displayLength = typeof (displayLength) !== 'undefined' ? displayLength : 2000
+        }
+
+        // Content
+        const arrayContent = []
+        if (title) {
+            arrayContent.push({ element: 'p', class: 'card-title', content: title })
+        }
+        if (time) {
+            arrayContent.push({ element: 'p', class: 'timestamp', content: time })
+        }
+        if (message && message != '') {
+            if (!Array.isArray(message)) {
+                arrayContent.push({ element: 'p', content: message })
             }
-        ]);
-        $('#notification-dropdown').prepend(c);
-        if (pulse) {
-            this.getElement('btn-notification').classList.add('pulse')
+            else {
+                for (let i in message) {
+                    arrayContent.push({ element: 'p', content: message[i] })
+                }
+            }
         }
+
+        // notification
+        if (notification) {
+            const arrayContentNotification = [...arrayContent]
+            const guidCanvasNotification = this.guid()
+            if (canvas || canvasNotification) {
+                arrayContentNotification.push({
+                    element: 'div',
+                    content: yHtml([{
+                        element: 'canvas',
+                        id: guidCanvasNotification
+                    }])
+                })
+            }
+            const notificationContent = yHtml([{
+                element: 'li',
+                class: 'card',
+                content: yHtml([{
+                    element: 'div',
+                    class: 'card-content',
+                    content: yHtml(arrayContentNotification)
+                }])
+            }])
+            $('#notification-dropdown').prepend(notificationContent);
+            if (pulse) {
+                this.getElement('btn-notification').classList.add('pulse')
+            }
+            this.showNotificationBadge()
+            afterNotification({ guidCanvas: guidCanvasNotification })
+        }
+
+        // Toast
         if (toast) {
-            M.toast({ html: message, classes: 'rounded' });
-            setTimeout(function () {
-                M.Toast.dismissAll();
-            }, 2000);
+            const arrayContentToast = [...arrayContent]
+            const guidCanvasToast = this.guid()
+            if (canvas || canvasToast) {
+                arrayContentToast.push({
+                    element: 'div',
+                    content: yHtml([{
+                        element: 'canvas',
+                        id: guidCanvasToast
+                    }])
+                })
+            }
+            const toastContent = yHtml([{
+                element: 'div',
+                class: 'card-content',
+                content: yHtml(arrayContentToast)
+            }])
+            M.toast({
+                html: toastContent,
+                classes: classes,
+                displayLength: displayLength,
+                completeCallback: completeCallback,
+                inDuration: inDuration,
+                outDuration: outDuration
+            })
+            afterToast({ guidCanvas: guidCanvasToast })
         }
-        this.showNotificationBadge();
-    };
+    }
     web.prototype.createNotification = function (id, icon, parent) {
         var res = {};
         list = this.createListItem('a', id, parent);
@@ -484,20 +634,21 @@
     };
     web.prototype.initListener = function () {
         const that = this;
-       
+
         // Variable search
         var searchInput = this.getElement('menubar_terminal');
         var searchField = this.getElement('menubar_input_field');
         var searchButton = this.getElement('btn-search');
-        
+
         this.listenerModuleSection()
-        this.listenerSideNavButton()   
+        this.listenerSideNavButton()
         this.listenerHomeButton()
         this.listenerFullscreenButton()
+        this.listenerClearCacheButton()
         this.listenerNotificationButton()
         this.listenerLogoutButton()
         this.listenerModuleButton()
-        
+
         // Button Search
         $('#btn-search').click(function () {
             if (searchField.style.display == 'block') {
@@ -534,33 +685,39 @@
         var elemsTapTarget = document.querySelectorAll('.tap-target');
         this.instancesTapTarget = M.TapTarget.init(elemsTapTarget, {});
     }
-    web.prototype.listenerModuleSection = function(){
+    web.prototype.listenerModuleSection = function () {
         _('#side-nav').on('click', '.side-nav-item', () => {
             this.toggleModuleSection()
         })
     }
-    web.prototype.listenerSideNavButton = function(){
+    web.prototype.listenerSideNavButton = function () {
         _('#header').on('click', 'btn-side-nav', () => {
             this.toggleSideNav()
         })
     }
-    web.prototype.listenerHomeButton = function() {
+    web.prototype.listenerHomeButton = function () {
         _('#header').on('click', 'btn-home', () => {
             this.showModuleCallback(document.getElementById('btn-module-home'))
         })
     }
-    web.prototype.listenerNotificationButton = function(){
+    web.prototype.listenerNotificationButton = function () {
         _('#header').on('click', 'btn-notification', () => {
             this.getElement('btn-notification').classList.remove('pulse')
             this.hideNotificationBadge();
         })
     }
-    web.prototype.listenerFullscreenButton = function(){
+    web.prototype.listenerFullscreenButton = function () {
         _('#header').on('click', 'btn-fullscreen', () => {
             this.toggleFullScreen()
         })
     }
-    web.prototype.listenerLogoutButton = function(){
+    web.prototype.listenerClearCacheButton = function () {
+        _('#header').on('click', 'btn-clear-cache', () => {
+            window.location.href = window.location.href
+            window.location.reload(true)
+        })
+    }
+    web.prototype.listenerLogoutButton = function () {
         const url_logout = 'C_home/logout';
         const moduleSection = this.getElement('module-section');
         _('#header').on('click', 'btn-logout', () => {
@@ -570,7 +727,7 @@
     }
     web.prototype.listenerModuleButton = function () {
         const that = this
-        _('#side-nav').on('click', '.btn-module', function(e) {
+        _('#side-nav').on('click', '.btn-module', function (e) {
             e.preventDefault()
             M.Toast.dismissAll()
             const withAlert = that.isFormFilled()
@@ -583,15 +740,18 @@
             }
         })
     }
-    web.prototype.toggleModuleSection = function(){
+    web.prototype.toggleModuleSection = function () {
         $("#side-nav").removeClass('nav-expanded')
         $("#side-nav").addClass('nav-collapsed')
 
         $("#i-btn-side-nav").removeClass('button-menu-utama')
         $("#i-btn-side-nav").addClass('button-menu-utama-default')
-        _('li-btn-home').show();
+        const liBtnHome = document.getElementById('li-btn-home')
+        if(typeof liBtnHome.style !== 'undefined'){
+            liBtnHome.style.display = 'block'
+        }
     }
-    web.prototype.toggleSideNav = function(){
+    web.prototype.toggleSideNav = function () {
         const sideNav = this.getElement("side-nav")
         const moduleSection = this.getElement("module-section")
         const iSideNavButton = this.getElement("i-btn-side-nav")
@@ -605,12 +765,15 @@
         iSideNavButton.classList.toggle('button-menu-utama')
         iSideNavButton.classList.toggle('button-menu-utama-default')
         navItemMenu.innerText = navItemMenu.innerText == 'low_priority' ? 'low_priority' : 'low_priority'
-        _('#li-btn-home').toggle()
-        
+        const liBtnHome = document.getElementById('li-btn-home')
+        if(typeof liBtnHome.style !== 'undefined'){
+            const value = window.getComputedStyle(liBtnHome).display === 'block' ? 'none' : 'block'
+            liBtnHome.style.display = value
+        }
     }
-    web.prototype.serializeForm = function(formModule){
+    web.prototype.serializeForm = function (formModule) {
         var serialized = [];
-        if(typeof formModule !== 'undefined' && formModule !== null  && typeof formModule.elements !== 'undefined'){
+        if (typeof formModule !== 'undefined' && formModule !== null && typeof formModule.elements !== 'undefined') {
             for (var i = 0; i < formModule.elements.length; i++) {
                 var field = formModule.elements[i];
                 if (!field.name || field.disabled || field.type === 'file' || field.type === 'reset' || field.type === 'submit' || field.type === 'button') continue;
@@ -627,28 +790,28 @@
             return serialized.join('&');
         }
     }
-    web.prototype.hasClass = function(element, selector){
+    web.prototype.hasClass = function (element, selector) {
         let className = " " + selector + " "
-        if ( (" " + element.className + " " ).replace(/[\t\r\n\f]/g, " ").indexOf(className) >= 0 ){ return true }
+        if ((" " + element.className + " ").replace(/[\t\r\n\f]/g, " ").indexOf(className) >= 0) { return true }
         else return false
     }
-    web.prototype.isFormFilled = function(){
+    web.prototype.isFormFilled = function () {
         let formModule = document.querySelector('.form-module');
-        if(typeof formModule !== 'undefined' && formModule !== null  && typeof formModule.elements !== 'undefined'){
+        if (typeof formModule !== 'undefined' && formModule !== null && typeof formModule.elements !== 'undefined') {
             for (var i = 0; i < formModule.elements.length; i++) {
                 var field = formModule.elements[i];
-                if(this.hasClass(field, 'ignore-filled')) continue;
+                if (this.hasClass(field, 'ignore-filled')) continue;
                 if (!field.name || field.disabled || field.type === 'file' || field.type === 'reset' || field.type === 'submit' || field.type === 'button' || field.type === 'select-one' || field.className === 'select-dropdown dropdown-trigger' || field.type === 'hidden' || field.type === 'search') continue;
                 if (field.type === 'select-multiple') {
                     for (var n = 0; n < field.options.length; n++) {
                         if (!field.options[n].selected) continue;
-                        if(field.options[n].value) {
+                        if (field.options[n].value) {
                             return true;
                         }
                     }
                 }
                 else if ((field.type !== 'checkbox' && field.type !== 'radio') || field.checked) {
-                    if(field.value != ''){
+                    if (field.value != '') {
                         return true
                     }
                 }
@@ -656,36 +819,36 @@
         }
         return false;
     }
-    web.prototype.guid = function(){  
+    web.prototype.guid = function () {
         let r = function () { return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1); };
         return (r() + r() + "-" + r() + "-" + r() + "-" + r() + "-" + r() + r() + r());
     }
-    web.prototype.showAlertExitModule = function(selector){
+    web.prototype.showAlertExitModule = function (selector) {
         const that = this
-        const toastExitModule = 
+        const toastExitModule =
             yM.span({
                 class: 'span-toast',
                 content: "Data belum disubmit, anda yakin untuk keluar dari modul ini ?"
-            }) + 
+            }) +
             yM.buttonFlat({
                 id: 'btn-cancel-exit-module',
                 class: 'toast-action',
                 content: 'Tidak'
             }) +
             yM.buttonFlat({
-                id : 'btn-confirm-exit-module',
+                id: 'btn-confirm-exit-module',
                 class: 'toast-action',
                 content: 'Iya'
             })
-        
+
         const instanceToast = M.toast({
             html: toastExitModule,
             displayLength: 20000
         })
         $('#btn-confirm-exit-module').focus()
-        
+
         $($('#btn-confirm-exit-module').parent()).off('drag')
-        
+
         //console.log(instanceToast)
         $('body').off('click', '#btn-cancel-exit-module')
         $('body').on('click', '#btn-cancel-exit-module', function (e) {
@@ -702,7 +865,7 @@
             // that.toggleSideNav()
         });
     }
-    web.prototype.showModuleCallback = function(selector){
+    web.prototype.showModuleCallback = function (selector) {
         const modName = $(selector).attr('mod')
         const modLabel = $(selector).attr('lab')
         $('.btn-module').removeClass('active')
@@ -793,8 +956,8 @@
                 window.location = 'C_login';
             }
         };
-        var complete = function (){};
-        var error = function (){};
+        var complete = function () { };
+        var error = function () { };
         var jsonError = function (e) {
             window.location = 'C_login';
         };
@@ -814,7 +977,7 @@
                 var moduleSection = that.getElement('module-section');
                 var modulePanel = yHtml({ element: 'div', id: 'module-panel', class: 'wrapper', content: '' });
                 var script = document.createElement('script');
-                script.setAttribute('src', window.location.origin + '/js/modules/v.' + h.secure.module + '.js');
+                script.setAttribute('src', window.location.origin + '/js/modules/v.' + h.secure.module + '.js?version=' + version);
                 script.type = "text/javascript";
                 moduleSection.innerHTML = modulePanel;
                 moduleSection.appendChild(script);
@@ -865,7 +1028,7 @@
             };
             postAjax(target, parameter, callback);
         });
-    };    
+    };
     web.prototype.session_check = function () {
         var callback = function (result) {
             var session;
@@ -943,4 +1106,4 @@
     if (typeof window === 'object' && typeof window.document === 'object') {
         window.yWeb = web;
     }
-})(window);
+})(window)
