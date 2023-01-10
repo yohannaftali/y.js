@@ -1,10 +1,15 @@
-// version=220616
+//----------------------------------------------------------------------------------------------------------------------
+// Y Panel Framework
+// version=230110
+//----------------------------------------------------------------------------------------------------------------------
 // 2022-04-20 - remove class red from button select and print button
 // 2022-06-16 - datetime array
 // 2022.06.20 - fix multiparam generated id
-//----------------------------------------------------------------------------------------------------------------------
-// Panel Framework
-// 2021.10.25
+// 2022.09.08 - fix select on modal master
+// 2022.09.23 - initSelectField
+// 2022.10.06 - add radio option for table
+// 2022.11.11 - add input type file and preview image
+// 2023.01.10 - implement select 2
 //----------------------------------------------------------------------------------------------------------------------
 (function (window, undefined) {
 	var document = window.document
@@ -37,9 +42,7 @@
 			this.instancesTooltip
 			this.instancesDate
 			this.instancesTime
-			this.instancesMasterSelect = []
 			this.instancesSelect = []
-			this.instancesMasterSelectFilter = []
 			this.instancesSelectFilter = []
 			this.selectList = []
 			this.selectController = []
@@ -47,6 +50,7 @@
 			this.selectFilterList = []
 			this.selectFilterController = []
 			this.resSelectFilter = []
+			this.rowRadio = []
 
 			this.writePanel(param)
 
@@ -69,7 +73,8 @@
 						content: yHtml({
 							element: 'form',
 							id: param.name,
-							class: 'form-module'
+							class: 'form-module',
+							enctype: 'multipart/form-data',
 						})
 					}])
 				}
@@ -116,7 +121,6 @@
 						class: 'left',
 						content: ''
 					},
-
 					{
 						element: 'ul',
 						id: 'toolbar-module-right',
@@ -224,7 +228,8 @@
 		/////////////////////////////////////////////////////////////////////////////////////
 		// Write Master
 		/////////////////////////////////////////////////////////////////////////////////////
-		writeMaster(param, parent) {
+		writeMaster(param, parent, func) {
+			func = typeof func !== 'undefined' ? func : 'master'
 			parent = typeof parent !== 'undefined' ? parent : this.master
 			const that = this
 			const multiparam = []
@@ -237,6 +242,13 @@
 			rowClass[0] = false
 			const masterSelect = []
 			const masterButtonSelect = []
+			const afterWriteMaster = []
+			if (typeof this.selectList[func] === 'undefined') {
+				this.selectList[func] = []
+			}
+			if (typeof this.selectController[func] === 'undefined') {
+				this.selectController[func] = []
+			}
 			for (let i in param) {
 				const p = param[i]
 				let row = 0
@@ -271,6 +283,16 @@
 					if (typeof p.content !== 'undefined') {
 						const headerButton = typeof p.headerButton !== 'undefined' ? p.headerButton : false
 						tableContent = this.generateTableMaster(name, p.content, p.label, headerButton, collapsible)
+						afterWriteMaster.push(() => {
+							for (let i in this.rowRadio) {
+								const par = this.rowRadio[i]
+								const itemName = typeof par.name !== 'undefined' ? par.name : false
+								const col = typeof par.col !== 'undefined' ? par.col : 0
+								if (itemName && col > 0) {
+									$(`th.th-label.label_header.header-${name}-${itemName}`).attr('colspan', col)
+								}
+							}
+						})
 					}
 					h[row] += yM.col({
 						class: clColTable,
@@ -296,6 +318,7 @@
 							selectContent += yM.option(p.option[j]);
 						}
 					}
+
 					masterSelect.push(p.name);
 					if (typeof p.label !== 'undefined') {
 						if (typeof p.label === 'string') {
@@ -307,6 +330,12 @@
 						else if (typeof p.label === 'object') {
 							p, label.addClass = 'active';
 						}
+					}
+					if (!this.selectList[func].includes(p.name)) {
+						this.selectList[func].push(p.name);
+					}
+					if (typeof p.controller !== 'undefined') {
+						this.selectController[func][p.name] = p.controller;
 					}
 					const selectParam = {
 						id: 'input_' + name,
@@ -455,6 +484,40 @@
 						content: yM.button(pButton)
 					});
 				}
+				else if (isParam(p, 'image')) {
+					// Preview Image
+					const colClass = typeof p.col !== 'undefined' ? p.col : 's1';
+					p.label = typeof p.label !== 'undefined' ? p.label : 'Preview Image';
+					p.name = typeof p.name !== 'undefined' ? p.name : 'preview-image';
+					p.class = typeof p.class !== 'undefined' ? p.class + ' preview-image content-preview-image content-preview-image-' + p.name : ' preview-image content-preview-image content-preview-image-' + p.name;
+					p.addClass = typeof p.addClass !== 'undefined' ? ' ' + p.addClass : '';
+					p.width = typeof p.width !== 'undefined' ? p.width : '200px';
+					p.height = typeof p.height !== 'undefined' ? p.height : '200px';
+					h[row] += yM.div({
+						class: 'container-preview-image container-preview-image-' + p.name,
+						id: 'container-preview-image-' + p.name,
+						content: yM.col({
+							class: colClass,
+							content:
+								yM.label({
+									class: 'title-preview-image title-preview-image-' + p.name,
+									id: 'title-preview-image-' + p.name,
+									for: 'preview-image-' + p.name,
+									content: p.label
+								}) + yM.div({
+									content: yM.img({
+										class: p.class,
+										addClass: p.addClass,
+										id: 'preview-image-' + p.name,
+										src: '/images/no_image.webp',
+										height: p.height,
+										width: p.width,
+										name: p.name
+									})
+								})
+						})
+					});
+				}
 				// Input and Label
 				else {
 					let classInput = 'input_text input_master_text autocomplete' + ' ' + addClass
@@ -479,6 +542,7 @@
 								timeArrayField.push(p.name)
 								isTimePicker = true;
 								classInput += ' timepicker input_master_text';
+								break;
 								break;
 						}
 					}
@@ -512,14 +576,14 @@
 								case 'date':
 									useDate = true
 									isDatePicker = true
-									dateArrayField.push(p.name+'_start')
-									dateArrayField.push(p.name+'_end')
+									dateArrayField.push(p.name + '_start')
+									dateArrayField.push(p.name + '_end')
 									break;
 								case 'time':
 									useTime = true
 									isTimePicker = true
-									timeArrayField.push(p.name+'_start')
-									timeArrayField.push(p.name+'_end')
+									timeArrayField.push(p.name + '_start')
+									timeArrayField.push(p.name + '_end')
 									break;
 							}
 						}
@@ -529,7 +593,6 @@
 						if (typeof r.h !== 'undefined') {
 							multiparam.push(r.m);
 						}
-						
 					}
 
 					// Main Field is_main: true
@@ -617,6 +680,15 @@
 							}
 							if (typeof p.maxlength !== 'undefined') {
 								input.maxlength = p.maxlength
+							}
+							if (typeof p.type !== 'undefined' && p.type === 'file') {
+								input.type = 'file'
+								if (typeof p.accept !== 'undefined') {
+									input.accept = p.accept
+								}
+								if (typeof p.preview !== 'undefined') {
+									input.preview = p.preview
+								}
 							}
 							h[row] += yM.inputField({
 								class: clField,
@@ -706,14 +778,18 @@
 				}
 			}
 			for (let i in masterSelect) {
-				this.updateSelectItem(masterSelect[i], '', undefined)
+				this.updateSelectItem(masterSelect[i], '', undefined, func)
 			}
 			for (let i in masterButtonSelect) {
 				this.updateButtonSelectItem(masterButtonSelect[i], '', undefined);
 			}
+			for (let i in afterWriteMaster) {
+				afterWriteMaster[i]()
+			}
 			return htmlResult
 		}
-		updateSelectItem(nameSelect, param, callback) {
+		updateSelectItem(nameSelect, param, callback, func) {
+			func = typeof func !== 'undefined' ? func : 'master'
 			callback = typeof callback !== 'undefined' ? callback : function () { }
 			const that = this
 			const elem = document.getElementById('input_' + nameSelect)
@@ -728,24 +804,7 @@
 				}
 			}
 			const onComplete = function () {
-				if (that.modeSelect === 'materialize') {
-					if (typeof that.instancesMasterSelect[nameSelect] !== 'undefined') {
-						that.instancesMasterSelect[nameSelect].destroy();
-					}
-					that.instancesMasterSelect[nameSelect] = M.FormSelect.init(elem, {
-						dropdownOptions: {
-							onOpenStart: function () {
-								const val = $(elem).val();
-								$(elem).attr('last', val);
-							}
-						}
-					});
-					const tag = $('#input_' + nameSelect).attr('tag')
-					$('#input_' + nameSelect).siblings('input').addClass(tag)
-				}
-				else {
-					$('#input_' + nameSelect).select2()
-				}
+				that.formSelectInitMaster(func, nameSelect, elem)
 				callback()
 			}
 			getAjax(this.queryUrl + 'call_' + nameSelect + '_select', param, onSuccess, onComplete)
@@ -859,12 +918,12 @@
 			let end = name + '_end';
 			let idMultiSelect = 'modal-multi-select-' + this.guid();
 			let contentFrom = [
-				{ element: 'input', type: 'text', id: 'input_' + start, name: start, class: classInput + ' input_' + name + ' input_'+start },
+				{ element: 'input', type: 'text', id: 'input_' + start, name: start, class: classInput + ' input_' + name + ' input_' + start },
 				{ element: 'span', class: 'helper-text', content: 'from' },
 				{ element: 'label', for: start, content: p.label },
 			];
 			let contentTo = [
-				{ element: 'input', type: 'text', id: 'input_' + end, name: end, class: classInput + ' input_' + name + ' input_'+end },
+				{ element: 'input', type: 'text', id: 'input_' + end, name: end, class: classInput + ' input_' + name + ' input_' + end },
 				{ element: 'span', class: 'helper-text', content: 'to' },
 				{ element: 'label', for: end, content: '' },
 			];
@@ -1101,44 +1160,42 @@
 		}
 		handlePasteSelection(obj, name, ac) {
 			obj = $(obj);
-			var that = this;
+			const that = this;
 			setTimeout(function () {
-				var name = obj.attr('name');
-				var name_array = name.split('[');
-				var input_name = name_array[0];
-				var start_index = parseInt(name_array[1].replace(']', ''));
-				var parent = obj.parent().parent();
-				var pid = '#' + $(parent).attr('id');
-				var i;
-				var last_row = parseInt($(parent).find('.last_input').attr('row'));
+				const name = obj.attr('name')
+				const name_array = name.split('[')
+				const input_name = name_array[0]
+				const start_index = parseInt(name_array[1].replace(']', ''))
+				const parent = obj.parent().parent()
+				const pid = '#' + $(parent).attr('id')
+				const last_row = parseInt($(parent).find('.last_input').attr('row'));
 				if (!isNaN(start_index)) {
-					var paste_value = '';
-					var rows = '';
+					let paste_value = ''
 					paste_value = obj.val();
-					paste_value = paste_value.replace(/[\s\r\n]+$/, '');
-					rows = paste_value.split('\n');
-					var no_of_rows = rows.length;
+					paste_value = paste_value.replace(/[\s\r\n]+$/, '')
+					const rows = paste_value.split('\n')
+					const no_of_rows = rows.length
 					obj.val('');
 					if (no_of_rows > ((last_row - start_index) + 1)) {
-						var required = no_of_rows - ((last_row - start_index) + 1);
-						var new_last_index = (last_row + required);
-						for (i = last_row; i < new_last_index; i++) {
-							var type = 'select';
-							that.addMultiSelectInput(pid, type, input_name, (parseInt(i) + 1), ac, false);
+						const required = no_of_rows - ((last_row - start_index) + 1);
+						const new_last_index = (last_row + required);
+						for (let i = last_row; i < new_last_index; i++) {
+							const type = 'select'
+							that.addMultiSelectInput(pid, type, input_name, (parseInt(i) + 1), ac, false)
 						}
-						$('#' + input_name + '_' + last_row).removeClass('last_input');
-						$('#' + input_name + '_' + new_last_index).addClass('last_input');
+						$('#' + input_name + '_' + last_row).removeClass('last_input')
+						$('#' + input_name + '_' + new_last_index).addClass('last_input')
 					}
-					var this_name;
-					for (i = 0; i < no_of_rows; i++) {
-						let thisIndex = parseInt(start_index) + i;
-						this_name = input_name + '[' + thisIndex + ']';
-						var is_last = $('textarea[name="' + this_name + '"]').attr('col');
-						$('textarea[name="' + this_name + '"]').val(rows[i]);
+					let this_name
+					for (let i = 0; i < no_of_rows; i++) {
+						let thisIndex = parseInt(start_index) + i
+						this_name = input_name + '[' + thisIndex + ']'
+						var is_last = $('textarea[name="' + this_name + '"]').attr('col')
+						$('textarea[name="' + this_name + '"]').val(rows[i])
 					}
-					$('textarea[name="' + this_name + '"]').focus();
+					$('textarea[name="' + this_name + '"]').focus()
 				}
-			}, 0);
+			}, 0)
 		}
 		writeTableSelectionData(data) {
 			var yms = 'y_multi_select_';
@@ -1279,6 +1336,7 @@
 		// Write Header of Table
 		/////////////////////////////////////////////////////////////////////////////////////
 		writeHeader(func) {
+
 			//let selector = func + '_header';
 			const selector = `${func}Header`
 			let fields = typeof this.form.field[func] !== 'undefined' ? this.form.field[func] : false;
@@ -1313,8 +1371,15 @@
 			if (sumFooter) {
 				$(this[selector]).parent().parent().append(yM.tfoot(sumFooter));
 			}
-			this.enableTableResize(func);
-
+			for (let i in this.rowRadio) {
+				const par = this.rowRadio[i]
+				const itemName = typeof par.name !== 'undefined' ? par.name : false
+				const col = typeof par.col !== 'undefined' ? par.col : 0
+				if (itemName && col > 0) {
+					$(`th.th-label.label_header.header-${func}-${itemName}`).attr('colspan', col)
+				}
+			}
+			this.enableTableResize(func)
 		}
 		generateTableHeader(name, fields) {
 			if (fields) {
@@ -1322,6 +1387,7 @@
 				let lastFields = fields.length - 1;
 				let lastColumnSelector = false;
 				let columnSelector = this.columnSelector();
+				this.rowRadio = []
 				for (var i in fields) {
 					if (i == lastFields) {
 						columnSelector = '';
@@ -1340,6 +1406,18 @@
 							}
 						}
 						classHeader += ' label_header_' + name + '_' + item.name + ` header-${name}-${item.name}`
+						if (isParam(item, 'radio') && isParam(item, 'byRow')) {
+							const radioGroupLabel = typeof item.radioGroupLabel !== 'undefined' ? item.radioGroupLabel : '';
+							const itemName = typeof item.name !== 'undefined' ? item.name : false
+							const groupName = typeof item.radioGroupName !== 'undefined' ? item.radioGroupName : false
+							if (radioGroupLabel != '') {
+								this.rowRadio[groupName] = { name: itemName, col: 1, label: radioGroupLabel }
+							}
+							else {
+								this.rowRadio[groupName].col += 1
+								continue
+							}
+						}
 						if (isParam(item, 'multicolumn')) {
 							let objectDataItem = false;
 							if (name === 'detail' || 'history') {
@@ -1463,7 +1541,28 @@
 							h += yM.th({
 								class: classHeader + ' hide th-hide'
 							});
-						} else {
+						} else if (isParam(item, 'radio') && isParam(item, 'byRow')) {
+							const radioGroupLabel = typeof item.radioGroupLabel !== 'undefined' ? item.radioGroupLabel : '';
+							const itemName = typeof item.name !== 'undefined' ? item.name : false
+							const groupName = typeof item.radioGroupName !== 'undefined' ? item.radioGroupName : false
+							if (radioGroupLabel != '') {
+								this.rowRadio[groupName] = { name: itemName, col: 1, label: radioGroupLabel }
+								h += yM.th({
+									col: groupName,
+									class: classHeader,
+									content: radioGroupLabel + columnSelector
+								})
+							}
+							else {
+								h += yM.th({
+									col: item.name,
+									class: classHeader,
+									content: item.label + columnSelector
+								})
+							}
+						}
+
+						else {
 							// General Header
 							h += yM.th({
 								col: item.name,
@@ -1504,7 +1603,6 @@
 				return h;
 			}
 		}
-
 		generateTableHeaderSum(fields) {
 			let result = false;
 			if (typeof fields !== 'undefined' && fields) {
@@ -1527,7 +1625,7 @@
 							} else {
 								h += yM.td({
 									data: item.name,
-									class: "header-sum header-sum-" + item.name,
+									class: "header-sum header-sum-" + item.name + ' right-align',
 									data: item.name,
 									content: ''
 								});
@@ -1561,7 +1659,7 @@
 							} else {
 								h += yM.td({
 									data: item.name,
-									class: "footer-sum footer-sum-" + item.name,
+									class: "footer-sum footer-sum-" + item.name + ' right-align',
 									data: item.name,
 									content: ''
 								});
@@ -1726,6 +1824,7 @@
 				let cell = typeof data[item.name] !== 'undefined' ? data[item.name] : ''
 				const patternMatchScript = /(<script>)(.*?)(?=<)/g
 				cell = patternMatchScript.test(cell) ? 'script injection detected' : cell
+				const addClass = typeof item.addClass !== 'undefined' ? item.addClass : ''
 				if (typeof item.type !== 'undefined') {
 					switch (item.type) {
 						case 'date':
@@ -1771,12 +1870,13 @@
 				else if (isParam(item, 'checkbox')) {
 					rowContent += this.writeCellInput(row, func, item, 'checkbox', cell);
 				}
-
+				else if (isParam(item, 'radio')) {
+					rowContent += this.writeCellInput(row, func, item, 'radio', cell);
+				}
 				// {textarea:'yes'} ...
 				else if (isParam(item, 'textarea')) {
 					rowContent += this.writeCellInput(row, func, item, 'textarea', cell);
 				}
-
 				// {select: true}
 				else if (isParam(item, 'select')) {
 					let classInput = 'input-select input-' + func + '-select';
@@ -1812,8 +1912,7 @@
 							}
 						}),
 						row: row
-					};
-
+					}
 					if (typeof item.controller !== 'undefined') {
 						childObject.controller = item.controller;
 					}
@@ -1853,7 +1952,6 @@
 				// {button:'yes'}
 				else if (isParam(item, 'button')) {
 					const iconObject = typeof item.icon !== 'undefined' ? item.icon : 'check'
-					const addClass = typeof item.addClass !== 'undefined' ? item.addClass : ''
 					const buttonContent = typeof (item.content) !== 'undefined' ? item.content : yM.button({
 						class: 'btn-floating waves-effect waves-light center btn-td btn-td-' + func + '-' + item.name + ' btn-td-' + func + ' ' + addClass,
 						icon: iconObject,
@@ -1958,6 +2056,27 @@
 						row: row
 					});
 				}
+				// HTML
+				else if (isParam(item, 'html')) {
+					const code = typeof item.code !== 'undefined' ? item.code : ''
+					rowContent += yM.td({
+						class: 'td td-html ' + addClass,
+						content: code,
+						row: row
+					})
+				}
+				else if (isParam(item, 'image')) {
+					rowContent += yM.td({
+						class: 'td td-img ' + addClass,
+						content: yM.img({
+							class: 'preview-image-table ' + addClass,
+							src: cell,
+							width: typeof item.width !== 'undefined' ? item.width : '50px',
+							height: typeof item.height !== 'undefined' ? item.height : '50px'
+						}),
+						row: row 
+					});
+				}
 				else {
 					// label
 					let isSumHeader = isParam(item, 'sum_header') || isParam(item, 'sumHeader')
@@ -1998,6 +2117,7 @@
 						}
 						rowContent += yM.td({
 							class: classItem + ' td-label',
+							attr: typeof item.attr !== 'undefined' ? item.attr : typeof item.attribute ? item.attribute : undefined,
 							content: cell,
 							data: item.name,
 							row: row
@@ -2108,28 +2228,33 @@
 		// Called by writeRow()
 		/////////////////////////////////////////////////////////////////////////////////////
 		writeCellInput(row, func, item, element, cell) {
-			let html = '';
-			let buttonHtml = ' ';
+			let html = ''
+			let buttonHtml = ' '
+			let tdClass = `td-${func}-${item.name} td-`
 			element = typeof element !== 'undefined' ? element : 'input';
 			if (typeof item !== 'undefined' && isParam(item, element)) {
-				let isSumHeader = isParam(item, 'sum_header') || isParam(item, 'sumHeader')
-				let isSumFooter = isParam(item, 'sum_footer') || isParam(item, 'sumFooter')
-				var isHidden = isParam(item, 'hidden')
-				var isCheckBox = isParam(item, 'checkbox') || isParam(item, 'checkBox')
-				var isReadonly = isParam(item, 'readonly') || isParam(item, 'readOnly')
-				var isRightAlign = isParam(item, 'right_align') || isParam(item, 'rightAlign')
-				const maxlength = typeof item.maxlength !== 'undefined' ? item.maxlength : false;
-				var pclass = 'input_text input-table-cell input_' + func + '_text ' + element + '_single input_' + item.name + ' autocomplete';
+				const isSumHeader = isParam(item, 'sum_header') || isParam(item, 'sumHeader')
+				const isSumFooter = isParam(item, 'sum_footer') || isParam(item, 'sumFooter')
+				const isHidden = isParam(item, 'hidden')
+				const isCheckBox = isParam(item, 'checkbox') || isParam(item, 'checkBox')
+				const isRadio = isParam(item, 'radio')
+				const showLabel = isParam(item, 'showLabel')
+				const isRadioColumn = isParam(item, 'byColumn')
+				const isRadioRow = isRadioColumn ? false : isParam(item, 'byRow')
+				const isReadonly = isParam(item, 'readonly') || isParam(item, 'readOnly')
+				const isRightAlign = isParam(item, 'right_align') || isParam(item, 'rightAlign')
+				const maxlength = typeof item.maxlength !== 'undefined' ? item.maxlength : false
+				let pclass = 'input_text input-table-cell input_' + func + '_text ' + element + '_single input_' + item.name + ' autocomplete'
+
 				if (isSumHeader) {
-					pclass += ' sum-item sum-header-item sum-header-item-' + item.name;
+					pclass += ' sum-item sum-header-item sum-header-item-' + item.name
 				}
 				if (isSumFooter) {
-					pclass += ' sum-item sum-footer-item sum-footer-item-' + item.name;
+					pclass += ' sum-item sum-footer-item sum-footer-item-' + item.name
 				}
-				var pname = item.name + '[' + row + ']';
-				var pId = item.name + '-' + row;
-				var tdClass = `td-${func}-${item.name} td-`;
-				var yObjType = {
+				const pname = item.name + '[' + row + ']'
+				const pId = item.name + '-' + row
+				const yObjType = {
 					element: element,
 					class: pclass,
 					name: pname,
@@ -2137,7 +2262,7 @@
 					value: cell,
 					data: item.name,
 					row: row
-				};
+				}
 				if (isRightAlign) {
 					yObjType.class += ' right-align';
 				}
@@ -2156,19 +2281,46 @@
 				}
 				if (element == 'checkbox' || isCheckBox) {
 					let idCB = 'checkbox-' + item.name + '-' + this.guid();
-					var yObjCB = {
+					const yObjCB = {
 						element: 'input',
 						type: 'checkbox',
 						id: idCB,
 						class: `filled-in input_tick input_tick_${item.name} input_tick_${func}_${item.name} checkbox-${func}-${item.name}`,
 						name: 'tick_' + pname
-					};
+					}
 					if (cell == true || cell == 'true') {
 						yObjCB.checked = 'checked';
 					}
-					var htmlCBContent = yM.input(yObjCB) + yM.span(typeof item.span !== 'undefined' ? item.span : '');
-					html += yM.label(htmlCBContent);
-					tdClass += `input-checkbox ${item.name}`;
+					const htmlCBContent = yM.input(yObjCB) + yM.span(typeof item.span !== 'undefined' ? item.span : '')
+					html += yM.label(htmlCBContent)
+					tdClass += `input-checkbox ${item.name}`
+				}
+				else if (isRadio) {
+					const radioName = typeof item.radioGroupName !== 'undefined' ? item.radioGroupName : 'radio'
+					yObjType.element = 'input'
+					yObjType.type = 'radio'
+					yObjType.name = isRadioRow ? radioName + '-' + row : radioName
+					yObjType.value = item.name
+					if (cell == true || cell == 'true' || isParam(item, 'checked')) {
+						yObjType.checked = 'checked'
+					}
+
+					tdClass += `input-radio ${item.name} ${item.groupName}`
+					if (isReadonly) {
+						yObjType.readonly = true
+					}
+					let yObjLabel = {}
+					if (showLabel) {
+						yObjLabel = {
+							element: 'span',
+							content: item.label
+						}
+					}
+					html += yHtml({
+						element: 'label',
+						class: 'input-radio',
+						content: yHtml([yObjType, yObjLabel])
+					})
 				}
 				else if ((element === 'input' || element === 'textarea') && !isHidden) {
 					yObjType.type = 'text';
@@ -2199,6 +2351,12 @@
 								break;
 							case 'currency':
 								yObjType.style = 'text-align: right';
+								break;
+							case 'file':
+								yObjType.type = 'file';
+								if (typeof item.accept !== 'undefined') {
+									yObjType.accept = item.accept;
+								}
 								break;
 						}
 					}
@@ -2383,86 +2541,29 @@
 		// Select Component
 		/////////////////////////////////////////////////////////////////////////////////////
 		initSelect(func, callback, callbackAfterInitSelect, forceRewrite) {
-			const that = this;
-			forceRewrite = typeof forceRewrite !== 'undefined' ? forceRewrite : false;
+			const that = this
+			forceRewrite = typeof forceRewrite !== 'undefined' ? forceRewrite : false
 			callback = typeof callback !== 'undefined' ? callback : function () { };
 			callbackAfterInitSelect = typeof callbackAfterInitSelect !== 'undefined' ? callbackAfterInitSelect : function () { };
 			this.instancesSelect[func] = typeof this.instancesSelect[func] !== 'undefined' ? this.instancesSelect[func] : [];
-			this.resSelect[func] = typeof this.resSelect[func] !== 'undefined' ? this.resSelect[func] : [];
-			const initFormSelect = function (func, nameSelect) {
-				$('.input_' + nameSelect).each(function () {
-					const obj = this;
-					that.instancesSelect[func][nameSelect] = [];
-					if ($(this).siblings('span').eq(0).length == 0) {
-						if (that.modeSelect === 'materialize') {
-							const row = $(this).attr('row');
-							that.instancesSelect[func][nameSelect][row] = M.FormSelect.init(this, {
-								dropdownOptions: {
-									onOpenStart: function () {
-										const val = $(obj).val();
-										$(obj).attr('last', val);
-									}
-								}
-							});
-						}
-						else {
-							// include Select2 framework if use select2 options
-							$(this).select2();
-						}
-					}
-				});
-				callbackAfterInitSelect();
-			};
-			const writeSelectOption = function (func, nameSelect) {
-				const resSelect = typeof that.resSelect[func][nameSelect] !== 'undefined' ? that.resSelect[func][nameSelect] : false;
-				if (resSelect) {
-					const res = JSON.parse(JSON.stringify(resSelect));
-					$('select.input-' + func + '-select.input_' + nameSelect).each(function () {
-						const thisRes = cloneObject(res);
-						let selected = $(this).attr('data-init');
-						const useContent = $(this).attr('use-content');
-						if (useContent) {
-							const selObject = thisRes.find(obj => {
-								const content = typeof obj.content !== 'undefined' ? obj.content : obj.label;
-								return content === selected;
-							});
-							selected = typeof selObject !== 'undefined' && selObject.value !== 'undefined' ? selObject.value : selected;
-						}
-						if (forceRewrite) {
-							$(this).html('');
-						}
-						if (forceRewrite || $(this).parent('.input-field').length > 0) {
-							let optionSelect = '';
-							for (let i in thisRes) {
-								const val = typeof thisRes[i].value !== 'undefined' ? thisRes[i].value : typeof thisRes[i].content !== 'undefined' ? thisRes[i].content : thisRes[i];
-								if (val === selected) {
-									thisRes[i].selected = true;
-								}
-								optionSelect += yM.option(thisRes[i]);
-							}
-							$(this).append(optionSelect);
-						}
-					});
-					initFormSelect(func, nameSelect);
-				}
-			};
+			this.resSelect[func] = typeof this.resSelect[func] !== 'undefined' ? this.resSelect[func] : []
 			if (typeof this.selectList[func] !== 'undefined' && this.selectList[func].length > 0) {
 				for (let i in this.selectList[func]) {
-					const nameSelect = this.selectList[func][i];
-					this.instancesSelect[func][nameSelect] = [];
+					const nameSelect = this.selectList[func][i]
+					this.instancesSelect[func][nameSelect] = []
 					let url = typeof this.selectController[func][nameSelect] !== 'undefined' ? this.selectController[func][nameSelect] : this.queryUrl + 'call_' + nameSelect + '_select';
-					url = url.replace(/-/g, "_");
+					url = url.replace(/-/g, "_")
 					if (typeof this.resSelect[func][nameSelect] === 'undefined' || forceRewrite) {
 						this.resSelect[func][nameSelect] = false;
 						const onSuccess = function (res) {
 							if (typeof res !== 'undefined' && res.length > 0) {
 								that.resSelect[func][nameSelect] = res;
-								writeSelectOption(func, nameSelect);
+								that.writeSelectOption(func, nameSelect, callbackAfterInitSelect, forceRewrite);
 							}
 						};
 						const onComplete = function () {
 							if (!that.resSelect[func][nameSelect]) {
-								initFormSelect(func, nameSelect);
+								that.initFormSelect(func, nameSelect, callbackAfterInitSelect);
 							}
 							callback();
 						};
@@ -2474,9 +2575,152 @@
 						}
 					}
 					else {
-						writeSelectOption(func, nameSelect);
+						that.writeSelectOption(func, nameSelect, callbackAfterInitSelect, forceRewrite);
 						callback();
 					}
+				}
+			}
+		}
+		initSelectField(table, field, callback, callbackAfterInitSelect, forceRewrite) {		
+			const that = this;
+			forceRewrite = typeof forceRewrite !== 'undefined' ? forceRewrite : false
+			callback = typeof callback !== 'undefined' ? callback : function () { };
+			callbackAfterInitSelect = typeof callbackAfterInitSelect !== 'undefined' ? callbackAfterInitSelect : function () { };
+			this.instancesSelect[table] = typeof this.instancesSelect[table] !== 'undefined' ? this.instancesSelect[table] : [];
+			this.resSelect[table] = typeof this.resSelect[table] !== 'undefined' ? this.resSelect[table] : []
+			this.instancesSelect[table][field] = []
+			let url = typeof this.selectController[table][field] !== 'undefined' ? this.selectController[table][field] : this.queryUrl + 'call_' + field + '_select';
+			url = url.replace(/-/g, "_")
+			if (typeof this.resSelect[table][field] === 'undefined' || forceRewrite) {
+				this.resSelect[table][field] = false;
+				const onSuccess = function (res) {
+					if (typeof res !== 'undefined' && res.length > 0) {
+						that.resSelect[table][field] = res;
+						that.writeSelectOption(table, field, callbackAfterInitSelect, forceRewrite)
+					}
+				};
+				const onComplete = function () {
+					if (!that.resSelect[table][field]) {
+						that.initFormSelect(table, field, callbackAfterInitSelect)
+					}
+					callback();
+				};
+				if (url) {
+					getAjax(url, '', onSuccess, onComplete);
+				}
+				else {
+					onComplete();
+				}
+			}
+			else {
+				that.writeSelectOption(table, field, callbackAfterInitSelect, forceRewrite)
+				callback();
+			}
+		}
+		writeSelectOption(func, nameSelect, callbackAfterInitSelect, forceRewrite, row) {
+			const that = this
+			const resSelect = typeof this.resSelect[func][nameSelect] !== 'undefined' ? this.resSelect[func][nameSelect] : false;
+			if (resSelect) {
+				const res = JSON.parse(JSON.stringify(resSelect));
+				if ($('select.input-' + func + '-select.input_' + nameSelect).length > 0) {
+					$('select.input-' + func + '-select.input_' + nameSelect).each(function () {
+						that.appendOptionSelect(this, res, forceRewrite)
+					});
+				} else if ($('#input_' + nameSelect).length > 0) {
+					const elem = document.getElementById('input_' + nameSelect)
+					that.appendOptionSelect(elem, res, forceRewrite)
+				}
+				this.initFormSelect(func, nameSelect, callbackAfterInitSelect);
+			}
+		}
+		appendOptionSelect(obj, res, forceRewrite) {
+			const cRes = cloneObject(res)
+			let selected = $(obj).attr('data-init')
+			const useContent = $(obj).attr('use-content')
+			if (useContent) {
+				const selObject = cRes.find(s => {
+					const content = typeof s.content !== 'undefined' ? s.content : s.label;
+					return content === selected;
+				})
+				selected = typeof selObject !== 'undefined' && selObject.value !== 'undefined' ? selObject.value : selected;
+			}
+			if (forceRewrite) {
+				$(obj).html('');
+			}
+			if (forceRewrite || $(obj).parent('.input-field').length > 0) {
+				let optionSelect = '';
+				for (let i in cRes) {
+					const val = typeof cRes[i].value !== 'undefined' ? cRes[i].value : typeof cRes[i].content !== 'undefined' ? cRes[i].content : cRes[i];
+					if (val === selected) {
+						cRes[i].selected = true;
+					}
+					optionSelect += yM.option(cRes[i]);
+				}
+				if(this.modeSelect == 'select2'){
+					// Re-clear option for select 2
+					$(obj).html('')
+				}				
+				$(obj).append(optionSelect);
+			}
+		}
+		initFormSelect(func, nameSelect, callbackAfterInitSelect) {
+			const that = this
+			callbackAfterInitSelect = typeof callbackAfterInitSelect !== 'undefined' ? callbackAfterInitSelect : () => { }
+			if ($('.input_' + nameSelect).length > 0) {
+				$('.input_' + nameSelect).each(function () {
+					that.formSelectInitTable(func, nameSelect, this)
+				})
+			} else if ($('#input_' + nameSelect).length > 0) {
+				const elem = document.getElementById('input_' + nameSelect)
+				that.formSelectInitMaster(func, nameSelect, elem)
+			}
+			callbackAfterInitSelect()
+		}
+		formSelectInitTable(func, nameSelect, obj) {
+			this.instancesSelect[func][nameSelect] = []
+			if ($(obj).siblings('span').eq(0).length == 0) {
+				if (this.modeSelect === 'materialize') {
+					const row = $(obj).attr('row');
+					this.instancesSelect[func][nameSelect][row] = M.FormSelect.init(obj, {
+						dropdownOptions: {
+							onOpenStart: function () {
+								const val = $(obj).val();
+								$(obj).attr('last', val);
+							}
+						}
+					})
+				}
+				else {
+					// include Select2 framework if use select2 options
+					$(obj).select2();
+				}
+			}
+		}
+		formSelectInitMaster(func, nameSelect, obj) {
+			if (typeof this.instancesSelect[func] === 'undefined') {
+				this.instancesSelect[func] = []
+			}
+			this.instancesSelect[func][nameSelect] = []
+			if ($(obj).siblings('span').eq(0).length == 0) {
+				if (this.modeSelect === 'materialize') {
+					this.instancesSelect[func][nameSelect] = M.FormSelect.init(obj, {
+						dropdownOptions: {
+							onOpenStart: function () {
+								const val = $(obj).val();
+								$(obj).attr('last', val);
+							}
+						}
+					})
+					const tag = $('#input_' + nameSelect).attr('tag')
+					$('#input_' + nameSelect).siblings('input').addClass(tag)
+				}
+				else {
+					// include Select2 framework if use select2 options
+					$(obj).select2()
+					$(obj).on('select2:open', function (e) {
+						const lastVal = $(obj).val()
+						$(obj).attr('last', lastVal)						
+					});
 				}
 			}
 		}
@@ -2502,7 +2746,7 @@
 										$(elem).attr('last', val);
 									}
 								}
-							});
+							})
 						}
 						else {
 							$(id).select2();
@@ -2751,7 +2995,6 @@
 				value: value
 			}])
 		}
-
 		getMultiColumnField(object) {
 			const result = []
 			for (let field in object) {

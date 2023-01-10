@@ -1,4 +1,9 @@
-// version=202203101721
+// version=230110
+//-----------------------------------------------------------------------------
+// 2022.10.17 - options select
+// 2022.11.11 - add fileInput and fileInputImage
+// 2023.01.10 - select2 on setInputValue
+//-----------------------------------------------------------------------------
 
 (function (window, undefined) {
     var document = window.document;
@@ -18,10 +23,10 @@
 
     Material.prototype.m = function (p) {
         // mandatory element and content
-        p.element = typeof (p.element) !== 'undefined' ? p.element : 'div';
+        p.element = typeof (p.element) !== 'undefined' ? p.element : 'div'
         if (typeof (p.addClass) !== 'undefined') {
-            p.class = typeof (p.class) !== 'undefined' ? p.class : '';
-            p.class += typeof (p.addClass) !== 'undefined' ? ' ' + p.addClass : '';
+            p.class = typeof (p.class) !== 'undefined' ? p.class : ''
+            p.class += typeof (p.addClass) !== 'undefined' ? ' ' + p.addClass : ''
         }
         // Handle listener
         var c = typeof (p.onClick) !== 'undefined' ? p.onClick : false;
@@ -106,9 +111,21 @@
         value = typeof (value) !== 'undefined' && value !== '' ? value : '';
         $(selector).val(value)
         if ($(selector).is("select")) {
-            $(selector).change();
-            $(selector).siblings('input.select-dropdown.dropdown-trigger').val(value);
-            $(selector).siblings('input.select-dropdown.dropdown-trigger').change();
+            const hasSelect2Id = $(selector).attr('data-select2-id')
+            const select2 = hasSelect2Id != undefined ? true : false            
+            if (select2) {
+                $(selector).trigger('change')
+                $(selector).siblings('label').removeClass('active').addClass('active')
+            } else {
+                const option = $(selector + ' option[value="' + value + '"]')
+                $(selector).change()
+                const label = option.length > 0 ? option.text() : value
+                const sibling = $(selector).siblings('input.select-dropdown.dropdown-trigger')
+                if (sibling.length > 0) {
+                    sibling.val(label)
+                    sibling.change()
+                }
+            }
         }
         if ($(selector).is(':checkbox')) {
             if (typeof value !== "boolean") {
@@ -139,11 +156,11 @@
     };
     Material.prototype.setTextValue = function (selector, value) {
         if (typeof (value) !== 'undefined' && value !== '') {
-            $(selector).text(value);
+            $(selector).text(value).change()
             $(selector).siblings('label').addClass('active');
         }
         else {
-            $(selector).text('');
+            $(selector).text('').change()
             $(selector).siblings('label').removeClass('active');
         }
     };
@@ -220,6 +237,15 @@
         p = this.o(p);
         p.element = typeof (p.element) !== 'undefined' ? p.element : 'label';
         p.content = typeof (p.content) !== 'undefined' ? p.content : '';
+        return this.m(p);
+    }
+    Material.prototype.inputFile = function (p) {
+        p = this.o(p);
+        p.element = typeof (p.element) !== 'undefined' ? p.element : 'input';
+        p.type = typeof (p.type) !== 'undefined' ? p.type : 'file';
+        p.accept = typeof (p.accept) !== 'undefined' ? p.accept : '*.*';
+        p.content = typeof (p.content) !== 'undefined' ? p.content : '';
+        p.hidden = 'hidden'
         return this.m(p);
     }
     Material.prototype.inputCheckbox = function (p) {
@@ -532,7 +558,11 @@
             delete p.placeholder;
         }
         pInput.type = typeof (pInput.type) !== 'undefined' ? pInput.type : 'text';
-        var input = this.input(pInput);
+        let input = this.input(pInput);
+        if (pInput.type === 'file') {
+            pInput.class = pInput.class + ' input_upload_file'
+            input = this.inputFile(pInput);
+        }
 
         // Icon
         var pIcon = false;
@@ -560,6 +590,9 @@
             delete p.label;
         }
         pLabel.for = typeof pLabel.for !== 'undefined' ? pLabel.for : pInput.id;
+        if (pInput.type === 'file') {
+            delete pLabel.for
+        }
         if (typeof p.idLabel !== 'undefined') {
             pLabel.id = p.idLabel;
             delete p.idLabel;
@@ -571,6 +604,9 @@
         if (typeof p.addClassLabel !== 'undefined') {
             pLabel.class = p.addClassLabel;
             delete p.addClassLabel
+        }
+        if (pInput.type === 'file') {
+            pLabel.addClass = 'active label-input-type-file'
         }
         var label = this.label(pLabel);
 
@@ -591,8 +627,25 @@
             characterCounter = this.characterCounter(p.span);
             delete p.span;
         }
-
-        p.content = icon + input + label + helperText + characterCounter;
+        if (pInput.type !== 'file') {
+            p.content = icon + input + label + helperText + characterCounter;
+        }
+        else if (pInput.type === 'file') {
+            const fileSpan = this.span({
+                id: 'span-' + pInput.id,
+                content: 'No file chosen',
+                class: 'span-input-type-file'
+            })
+            const fileButton = this.span({
+                content: this.label({
+                    id: 'button-' + pInput.id,
+                    content: 'Choose File',
+                    for: typeof pLabel.for !== 'undefined' ? pLabel.for : pInput.id,
+                    class: 'button-input-type-file'
+                })
+            })
+            p.content = icon + input + label + fileSpan + fileButton + helperText + characterCounter;
+        }
         return this.m(p);
     }
 
@@ -721,8 +774,12 @@
     }
 
     // Media
+    Material.prototype.img = function (p) {
+        return this.image(p)
+    }
     Material.prototype.image = function (p) {
         p = this.o(p);
+        p.element = typeof p.element !== 'undefined' ? p.element : 'img'
         p.src = typeof (p.src) !== 'undefined' ? p.src : '';
         if (typeof p.content !== 'undefined') {
             if (p.src === '') {
@@ -1048,4 +1105,4 @@
         window.yMaterial = new Material();
         window.yM = yMaterial;
     }
-})(window)
+})(window);

@@ -1,19 +1,24 @@
-// version=202203111200
+//----------------------------------------------------------------------------------------------------------------------
+// Y App Framework
+// version=221111
+//----------------------------------------------------------------------------------------------------------------------
+// 2022.09.08 add attribute options
+// 2022.11.11 add preview on htmlAttr
 
 (function (window, undefined) {
-	var document = window.document;
-	var location = window.location;
+	const document = window.document
+	const location = window.location
 	//------------------------------------------------------------------------------
 	// y Engine
 	// Foundation for Application
 	//------------------------------------------------------------------------------
-	var y = function (selector) {
+	const y = function (selector) {
 		this.selector = false;
 		this.dummy = false;
 		return new y.prototype.init(selector);
-	};
-	var _eventHandlers = {};
-	var readyHandle = function (callback) {
+	}
+	const _eventHandlers = {};
+	const readyHandle = function (callback) {
 		if (document.readyState === 'complete') {
 			callback();
 		}
@@ -22,9 +27,7 @@
 			y(document).on('DOMContentLoaded', completed);
 			y(window).on('load', completed);
 		}
-	};
-	//var htmlAttr = new Array('accept', 'action', 'alt', 'autocomplete', 'background', 'bind', 'cell', 'cells', 'checked', 'class', 'col', 'cols', 'colspan', 'controller', 'data', 'data-init', 'data-collapsible', 'data-filename', 'data-sheetname', 'data-filetype', 'data-target', 'data-tooltip', 'data-position', 'dir', 'disabled', 'display', 'draggable', 'dropzone', 'enctype', 'for', 'group', 'height', 'hidden', 'href', 'ico', 'id', 'lab', 'lang', 'label', 'last', 'max', 'maxlength', 'min', 'mod', 'name', 'next', 'onclick', 'parent', 'pattern', 'prev', 'progress', 'readonly', 'tag', 'type', 'row', 'rows', 'rowspan', 'sign', 'selected', 'src', 'step', 'spellcheck', 'style', 'tabindex', 'title', 'translate', 'use-content', 'value', 'width');
-	
+	}	
 	const htmlAttr = new Array(
 		'accept', 'accept-charset', 'accesskey', 'action', 'alt', 'async', 'autocomplete', 'autofocus', 'autoplay',
 		'background', 'bind',
@@ -53,19 +56,19 @@
 	 		'ontimeupdate', 'ontoggle', 
 	 		'onunload', 'onvolumechange', 'onwaiting', 'onwheel',
 			'open', 'optimum', 
-		'parent', 'pattern', 'placeholder', 'poster', 'preload' ,'prev', 'progress',
+		'parent', 'pattern', 'placeholder', 'poster', 'preload' ,'prev', 'preview', 'progress',
 		'readonly', 'rel',  'required', 'reversed', 'row', 'rows', 'rowspan',
 		'sandbox', 'scope', 'selected', 'shape', 'sign', 'size', 'sizes', 'spellcheck', 'src', 'srcdoc', 'srclang', 'srcset', 'start', 'step', 'style',
 		'tabindex', 'tag', 'target', 'title', 'translate', 'type',
 		'usemap', 'use-content',
 		'value',
 		'width', 'wrap');
-	var _completed = function (callback) {
+	const _completed = function (callback) {
 		y(document).off('DOMContentLoaded', _completed);
 		y(window).off('load', _completed);
 		callback();
 	};
-	var getElement = function (param) {
+	const getElement = function (param) {
 		var result;
 		if (typeof param === 'string') {
 			var type = param.substring(0, 1);
@@ -89,7 +92,7 @@
 		}
 		return result;
 	};
-	var _createEvent = function (node, event, handler, capture) {
+	const _createEvent = function (node, event, handler, capture) {
 		if (typeof handler !== 'undefined') {
 			_eventHandlers[node] = typeof _eventHandlers[node] !== 'undefined' ? _eventHandlers[node] : {};
 			_eventHandlers[node][event] = typeof _eventHandlers[node][event] !== 'undefined' ? _eventHandlers[node][event] : [];
@@ -107,7 +110,7 @@
 		}
 		return false;
 	};
-	var _delegationFunction = function (parent, children, handler) {
+	const _delegationFunction = function (parent, children, handler) {
 		var delegation_function = function (e) {
 			e = e ? e : event;
 			var element = e.srcElement ? e.srcElement : e.target ? e.target : false
@@ -130,7 +133,7 @@
 		}
 		if (element == child) handler.call(element, e)
 	}
-	var _removeEvent = function (node, event, handler, capture) {
+	const _removeEvent = function (node, event, handler, capture) {
 		var this_handler;
 		if (_eventHandlers[node]) {
 			if (_eventHandlers[node][event]) {
@@ -157,7 +160,7 @@
 		}
 		return false;
 	};
-	var _removeAllEvents = function (node, event) {
+	const _removeAllEvents = function (node, event) {
 		if (node in _eventHandlers) {
 			var handlers = _eventHandlers[node];
 			if (event in handlers) {
@@ -172,7 +175,7 @@
 		}
 		return false;
 	};
-	var printHtml = function (html) {
+	const printHtml = function (html) {
 		var name = 'y_print_frame';
 		if (typeof window.y_print_frame !== 'undefined') {
 			delete window.y_print_frame;
@@ -220,6 +223,7 @@
 	const getCode = function (p) {
 		const u = 'undefined'
 		const attr = htmlAttr
+		const at = typeof p.attr !== 'undefined' ? ' ' + p.attr + ' ' : ''
 		const e = p.element
 		const a = '<' + e + ' '
 		const b = '>'
@@ -246,53 +250,15 @@
 		s += typeof p.style_height != u ? 'style="height:' + p.style_height + '"' : ''
 		s += typeof p.styleHeight != u ? 'style="height:' + p.styleHeight + '"' : ''
 		if (!(e == 'input' || e == 'img' || e == 'link')) {
-			return a + s + b + tb + t + ta + c;
+			return a + at + s + b + tb + t + ta + c;
 		} else {
-			return a + s + d;
+			return a + at + s + d;
 		}
-	};
-	// var getCode = function (p) {
-	// 	var attr = _htmlAttr
-	// 	var e = p.element;
-	// 	var a = '<' + e + ' ';
-	// 	var b = '>';
-	// 	var c = '</' + e + b;
-	// 	var d = ' />';
-	// 	var s = '';
-	// 	var t = '';
-	// 	var tb = '';
-	// 	var ta = '';
-	// 	var u = 'undefined';
-	// 	var h = function (x, y) { return x + '="' + y + '" '; };
-	// 	let v = function (x, y) { return typeof (x[y]) !== u ? x[y] : '' };
-	// 	let w = function (x, y) { return x !== '' ? x : y };
-	// 	t = v(p, 'content');
-	// 	t = w(t, v(p, 'rel'));
-	// 	t = w(t, v(p, 'rev'));
-	// 	t = w(t, v(p, 'href'));
-	// 	if (typeof p.before != u) { tb = p.before; }
-	// 	if (typeof p.after != u) { ta = p.after; }
-	// 	for (var i in attr) {
-	// 		if (typeof p[attr[i]] !== u) {
-	// 			s += h(attr[i], p[attr[i]]);
-	// 		}
-	// 	}
-	// 	if (typeof p.style_width != u) {
-	// 		s += 'style="width:' + p.style_width + '"';
-	// 	}
-	// 	if (typeof p.style_height != u) {
-	// 		s += 'style="height:' + p.style_height + '"';
-	// 	}
-	// 	if (!(e == 'input' || e == 'img' || e == 'link')) {
-	// 		return a + s + b + tb + t + ta + c;
-	// 	} else {
-	// 		return a + s + d;
-	// 	}
-	// };
+	}
 	const htmlCode = function (p) {
-		var r = '';
+		let r = '';
 		if (Array.isArray(p)) {
-			for (var i in p) {
+			for (let i in p) {
 				r += getCode(p[i]);
 			}
 		}
@@ -489,7 +455,7 @@
 	//y.fn.init.prototype = y.fn;
 
 
-	var style = function () {
+	const style = function () {
 		this.file = document.createElement('style');
 		this.file.type = 'text/css';
 		this.file.innerHTML = '';
@@ -516,27 +482,19 @@
 		time = typeof time !== 'undefined' ? time : 1000;
 		option = typeof option !== 'undefined' ? option : '';
 		time = parseInt(time);
-		var interval_time = 13;
-		var section = parseInt(time / interval_time);
+		const interval_time = 13;
+		let section = parseInt(time / interval_time);
 		if (section < 1) { section = 1; }
-		var current_value = this.style(selector, param);
-
-		var px = value.substr(value.length - 2);
-
-		var is_px = false;
-		var start = current_value;
-		var end = value;
-		if (px == 'px') {
-			is_px = true;
-			start = parseFloat(current_value.substr(0, current_value.length - 2));
-			end = parseFloat(value.substr(0, value.length - 2));
-		}
-		var temp = start;
-		var step = (end - start) / section;
-		var diff = end - start;
-		var data = [];
-		for (var i = 0; i < section; i++) {
-			var p = (i + 1) / section;
+		const currentValue = this.style(selector, param)	
+		const start = currentValue.substr(-2) == 'px' ? parseFloat(currentValue.slice(0, -2).trim()) : currentValue
+		const end = value.substr(-2) == 'px' ? parseFloat(value.slice(0, -2).trim()) : value
+		
+		// var temp = start;
+		// var step = (end - start) / section;
+		const diff = end - start;
+		const data = [];
+		for (let i = 0; i < section; i++) {
+			const p = (i + 1) / section;
 			switch (option) {
 				case '':
 					data[i] = start + (this.swing(p) * diff);
@@ -550,21 +508,24 @@
 		if (data[section - 1] != value) {
 			data[section - 1] = value;
 		}
-		var element = this.get_element(selector);
+		const element = this.get_element(selector);
 		if (element != 'null' && typeof element === 'object') {
 			if (value !== '') {
 				i = 0;
-				var animate;
+				let animate;
 				if (typeof element.__isClass !== 'undefined' && element.__isClass === true) {
 					animate = setInterval(function () {
-						for (var i = 0; i < element.length; i++) {
+						for (let i = 0; i < element.length; i++) {
 							element[i].style[param] = data[i];
 						}
 						i++;
 					}, interval_time);
 				}
 				else {
-					animate = setInterval(function () { element.style[param] = data[i]; i++; }, interval_time);
+					animate = setInterval(function () { 
+						element.style[param] = data[i]; 
+						i++; 
+					}, interval_time);
 				}
 			}
 		}
@@ -773,17 +734,17 @@
 			jsonError = typeof jsonError !== 'undefined' ? jsonError : function (e) { console.log('controller: ' + url); console.log(e); };
 			data = (typeof data !== 'undefined') && (data !== '') ? '?' + data : '';
 			timeout = typeof timeout !== 'undefined' ? timeout : 0;
-			var ajax = new XMLHttpRequest();
+			const ajax = new XMLHttpRequest();
 			ajax.open('GET', url + data, true); // true = asynchronous
 			ajax.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 			ajax.onreadystatechange = function () {
 				if (ajax.readyState == 4) {
 					if (ajax.status >= 200 && (ajax.status < 300 || ajax.status === 304)) {
-						var res;
-						try {
-							res = JSON.parse(ajax.responseText);
-							success(res);
+						try {						
+							const res = JSON.parse(ajax.responseText)
+							success(res)
 						} catch (e) {
+							console.log('controller: ' + url);
 							jsonError(e);
 						}
 					}
@@ -845,7 +806,6 @@
 					reject(Error(e))
 				}
 			})
-
 		}
 		else {
 			reject(Error('Error: undefined url'))
@@ -861,7 +821,7 @@
 			error = typeof error !== 'undefined' ? error : function () { };
 			error = typeof error !== 'function' ? function () { } : error;
 			data = (typeof data !== 'undefined') && (data !== '') ? '?' + data : '';
-			var ajax = new XMLHttpRequest();
+			const ajax = new XMLHttpRequest();
 			ajax.open('GET', url + data, true); // true = asynchronous
 			ajax.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 			ajax.send(null);
@@ -893,7 +853,7 @@
 		error = typeof error !== 'undefined' ? error : function () { };
 		error = typeof error !== 'function' ? function () { } : error;
 		jsonError = typeof jsonError !== 'undefined' ? jsonError : function (e) { console.log(e); };
-		var ajax = new XMLHttpRequest();
+		const ajax = new XMLHttpRequest();
 		ajax.open('POST', url, true);
 		ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		ajax.send(data);
@@ -915,8 +875,8 @@
 				complete();
 			}
 		};
-	};
-	var postAjaxMultipart = function (url, data, success, complete, error, jsonError) {
+	}
+	const postAjaxMultipart = function (url, data, success, complete, error, jsonError) {
 		showPreloader();
 		success = typeof success !== 'undefined' ? success : function () { };
 		success = typeof success !== 'function' ? function () { } : success;
@@ -925,7 +885,7 @@
 		error = typeof error !== 'undefined' ? error : function () { };
 		error = typeof error !== 'function' ? function () { } : error;
 		jsonError = typeof jsonError !== 'undefined' ? jsonError : function (e) { console.log(e); };
-		var ajax = new XMLHttpRequest();
+		const ajax = new XMLHttpRequest();
 		ajax.open('POST', url, true);
 		ajax.send(data);
 		ajax.onreadystatechange = function () {
@@ -941,37 +901,6 @@
 				}
 				else {
 					error(ajax.status);
-				}
-				hidePreloader();
-				complete();
-			}
-		};
-	};
-	var fileAjax = function (url, formData, success, complete, error, jsonError) {
-		showPreloader();
-		success = typeof success !== 'undefined' ? success : function () { };
-		success = typeof success !== 'function' ? function () { } : success;
-		complete = typeof complete !== 'undefined' ? complete : function () { };
-		complete = typeof complete !== 'function' ? function () { } : complete;
-		error = typeof error !== 'undefined' ? error : function () { };
-		error = typeof error !== 'function' ? function () { } : error;
-		jsonError = typeof jsonError !== 'undefined' ? jsonError : function (e) { console.log(e); };
-		var ajax = new XMLHttpRequest();
-		ajax.open('POST', url, true);
-		ajax.send(formData);
-		ajax.onreadystatechange = function () {
-			if (ajax.readyState === 4) {
-				if ((ajax.status === 200) || (ajax.status === 0)) {
-					var res;
-					try {
-						res = JSON.parse(ajax.responseText);
-						success(res);
-					} catch (e) {
-						jsonError(e);
-					}
-				}
-				else {
-					error();
 				}
 				hidePreloader();
 				complete();
@@ -1154,15 +1083,35 @@
 	const useParam = function (object, param) {
 		for (var field in param) { if (param.hasOwnProperty(field)) { object[field] = param[field]; } }
 	}
+
+	//-------------------------------------------------------------------------
+	// hasParam
 	// check whether is item.key = true
-	const isParam = function (item, param, trueResult, falseResult) {
+	//-------------------------------------------------------------------------
+	const hasParam = function (item, param, comparator, trueResult, falseResult) {
 		trueResult = typeof trueResult !== 'undefined' ? trueResult : true
 		falseResult = typeof falseResult !== 'undefined' ? falseResult : false
-		return typeof item[param] !== 'undefined' && (item[param] === 'yes' || item[param] === true) ? true : false
+		if(typeof item[param] === 'undefined'){
+			return falseResult
+		}
+		if(typeof comparator !== 'undefined') {
+			return item[param] === comparator ? trueResult : falseResult
+		}
+		else{
+			return (item[param] === true || item[param] === 'yes' || item[param] === 'true') ? trueResult : falseResult
+		}
 	}
+
+	//-------------------------------------------------------------------------
+	// Elvis
+	// Return a if a is not undefined
+	// Else return b
+	//-------------------------------------------------------------------------
 	const elvis = function (a, b) {
-		return typeof a !== 'undefined' ? a : typeof b !== 'undefined' ? b : false
+		b = typeof b !== 'undefined' ? b : false
+		return typeof a !== 'undefined' ? a : b
 	}
+
 	const getCaret = function (el) { if (el.selectionStart) { return el.selectionStart; } else if (document.selection) { el.focus(); const r = document.selection.createRange(); if (r == null) { return 0; } const re = el.createTextRange(), rc = re.duplicate(); re.moveToBookmark(r.getBookmark()); rc.setEndPoint('EndToStart', re); return rc.text.length; } return 0; }
 	const setCaret = function (el, pos) { if (el != null) { if (el.createTextRange) { const range = el.createTextRange(); range.move('character', pos); range.select(); } else { if (el.selectionStart) { el.focus(); el.setSelectionRange(pos, pos); } else { el.focus() } } } }
 	if (typeof window === 'object' && typeof window.document === 'object') {
@@ -1195,9 +1144,10 @@
 		window.printHtml = printHtml
 		window.promiseGet = promiseGet
 		window.getAjax = getAjax
+		window.getAjaxText = getAjaxText
 		window.postAjax = postAjax
 		window.postAjaxMultipart = postAjaxMultipart
-		window.fileAjax = fileAjax
+		window.fileAjax = postAjaxMultipart
 		window.y_command = setCommand
 		window.setCommand = setCommand
 		window.y_valid_numeric = y_valid_numeric
@@ -1206,7 +1156,8 @@
 		window.is_integer = isInteger
 		window.isInteger = isInteger
 		window.useParam = useParam
-		window.isParam = isParam
+		window.isParam = hasParam
+		window.hasParam = hasParam
 		window.yClickPosition = yClickPosition
 		window.elvis = elvis
 		window.getCaret = getCaret

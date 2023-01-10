@@ -1,72 +1,75 @@
+// version=220913
+// 2022-10-10 Fix naming convention
+
 (function (window, undefined) {
-	var arg = function (a) {
-		a = !isNaN(a) ? a : false;
-		return a;
-	};
-	var get_correction = function (a) {
+	const arg = function (a) {
+		a = !isNaN(a) ? a : false
+		return a
+	}
+	const getCorrection = function (a) {
 		var splitval = a.toString().indexOf('.');
 		var precision = 0;
 		if (splitval > 0) { precision = a.toString().split(".")[1].length; }
 		var result = Math.pow(10, precision);
 		return result;
-	};
-	var mul = function (a, b) {
-		var x = get_correction(a);
-		var y = get_correction(b);
+	}
+	const mul = function (a, b) {
+		var x = getCorrection(a);
+		var y = getCorrection(b);
 		return ((a * x) * (b * y)) / (x * y);
-	};
-	var div = function (a, b) {
-		var x = get_correction(a);
-		var y = get_correction(b);
+	}
+	const div = function (a, b) {
+		var x = getCorrection(a);
+		var y = getCorrection(b);
 		var res = ((a * x) / (b * y));
-		var z = get_correction(res);
+		var z = getCorrection(res);
 		return (res * z) / (x * y * z);
-	};
-	var y_math = {
+	}
+	const yMath = {
 		mul: function (a, b) { return arg(a) && arg(b) ? mul(a, b) : false; },
 		div: function (a, b) { return arg(a) && arg(b) ? div(a, b) : false; }
+	}
+	const yNow = function (param) {
+		var now = new Date()
+		return yDatetimeConvert(now, param)
 	};
-	var y_now_string = function (param) {
-		var now = new Date();
-		return y_datetime_convert(now, param);
-	};
-	var y_this_month = function (param) {
+	const yThisMonth = function (param) {
 		this_month = new Date();
 		//this_month = new Date(this_month);
 		//last_month.setDate(this_month.getDate() - 1);
-		return y_datetime_convert(this_month, param);
+		return yDatetimeConvert(this_month, param);
 	};
-	var y_last_month = function (param) {
+	const yLastMonth = function (param) {
 		this_month = new Date();
 		last_month = new Date(this_month);
 		last_month.setMonth(last_month.getMonth() - 1);
-		return y_datetime_convert(last_month, param);
+		return yDatetimeConvert(last_month, param);
 	};
-	var y_next_month = function (param) {
+	const yNextMonth = function (param) {
 		this_month = new Date();
 		next_month = new Date(this_month);
 		next_month.setMonth(next_month.getMonth() + 1);
-		return y_datetime_convert(next_month, param);
+		return yDatetimeConvert(next_month, param);
 	};
-	var y_yesterday = function (param) {
+	const yYesterday = function (param) {
 		today = new Date();
 		yesterday = new Date(today);
 		yesterday.setDate(today.getDate() - 1);
-		return y_datetime_convert(yesterday, param);
+		return yDatetimeConvert(yesterday, param);
 	};
-	var y_last_hour = function (param) {
+	const yLastHour = function (param) {
 		today = new Date();
 		time = new Date(today);
 		time.setHours(today.getHours() - 1);
-		return y_datetime_convert(time, param);
-	};
-	var y_next_hour = function (param) {
+		return yDatetimeConvert(time, param);
+	}
+	const yNextHour = function (param) {
 		today = new Date();
 		time = new Date(today);
 		time.setHours(today.getHours() + 1);
-		return y_datetime_convert(time, param);
-	};
-	var y_day = function (dateString) {
+		return yDatetimeConvert(time, param);
+	}
+	const yDay = function (dateString) {
 		var weekday = [];
 		weekday[0] = "Sunday";
 		weekday[1] = "Monday";
@@ -78,8 +81,8 @@
 		var d = new Date(dateString);
 		var n = d.getDay();
 		return weekday[n];
-	};
-	var y_month_name = function (dateString) {
+	}
+	const yMonthName = function (dateString) {
 		var monthName = [];
 		monthName[0] = "January";
 		monthName[1] = "February";
@@ -97,14 +100,14 @@
 		var n = d.getMonth();
 		return monthName[n];
 	};
-	var y_tomorrow = function (param) {
+	const yTomorrow = function (param) {
 		today = new Date();
 		tomorrow = new Date(today);
 		tomorrow.setDate(today.getDate() + 1);
-		return y_datetime_convert(tomorrow, param);
+		return yDatetimeConvert(tomorrow, param);
 	};
 
-	var y_datetime_convert = function (date, param) {
+	var yDatetimeConvert = function (date, param) {
 		var result;
 		switch (param) {
 			case 'short_time':
@@ -124,11 +127,17 @@
 			case 'long_datetime':
 				result = date_to_long_datetime(date); // mm/dd/yyyy hh:ii
 				break;
+			case ' mm/dd/yyyy':
+				result = date_to_medium_date(date); // mm/dd/yyyy
+				break;
 			case 'medium_date':
 				result = date_to_medium_date(date); // mm/dd/yyyy
 				break;
+			case 'medium_date_indonesia':
+				result = date_dd_mm_yyyy(date); // dd/mm/yyyy
+				break;
 			case 'dd/mm/yyyy':
-				result = date_dd_mm_yyyy(date); // mm/dd/yyyy
+				result = date_dd_mm_yyyy(date); // dd/mm/yyyy
 				break;
 			case 'medium_datetime':
 				result = date_to_medium_datetime(date); // mm/dd/yyyy hh:ii
@@ -271,7 +280,7 @@
 			return "";
 		}
 	}
-	function datetime_sql_to_medium_datetime(date) {
+	const datetime_sql_to_medium_datetime = function(date) {
 		// convert yyyy-mm-dd to mm/dd/yyyy
 		var result = date;
 		if (date && date !== '') {
@@ -297,7 +306,7 @@
 		}
 		return result;
 	}
-	function medium_date_to_date_sql(date) {
+	const medium_date_to_date_sql = function(date) {
 		// convert mm/dd/yyyy to yyyy-mm-dd
 		if (date) {
 			array_date = date.split("/");
@@ -311,7 +320,7 @@
 			return "";
 		}
 	}
-	function medium_date_to_datetime_sql(date) {
+	const medium_date_to_datetime_sql = function(date) {
 		// convert mm/dd/yyyy to yyyy-mm-dd 00:00:00
 		if (date) {
 			array_date = date.split("/");
@@ -325,7 +334,7 @@
 			return "";
 		}
 	}
-	function medium_datetime_to_date_sql(date) {
+	const medium_datetime_to_date_sql = function(date) {
 		// convert mm/dd/yyyy hh:ii:ss to yyyy-mm-dd
 		if (date) {
 			array_datetime = date.split(" ");
@@ -340,7 +349,7 @@
 			return "";
 		}
 	}
-	function date_to_serial_datetime(date) {
+	const date_to_serial_datetime = function(date) {
 		// convert date to yyyymmddhhiiss
 		var yyyy = date.getFullYear();
 		var mm = date.getMonth() + 1;
@@ -355,7 +364,7 @@
 		if (ss < 10) { ss = '0' + ss; }
 		return yyyy + mm + dd + hh + ii + ss;
 	}
-	function date_to_coded_datetime(date) {
+	const date_to_coded_datetime = function(date) {
 		// convert date to XyyMddHiiss
 		if (typeof date === 'object') {
 			var yyyy = date.getFullYear();
@@ -392,7 +401,7 @@
 			return '';
 		}
 	}
-	function datetime_sql_to_medium_date(datetime_sql) {
+	const datetime_sql_to_medium_date = function(datetime_sql) {
 		// convert yyyy-mm-dd hh:ii:ss to mm/dd/yyyy
 		if (datetime_sql && datetime_sql !== '') {
 			array_datetime = datetime_sql.split(' ');
@@ -402,7 +411,7 @@
 			return "";
 		}
 	}
-	function date_convert_simple(yyyymmdd_date) {
+	const date_convert_simple = function(yyyymmdd_date) {
 		string = '';
 		if (yyyymmdd_date) {
 			array_date = yyyymmdd_date.split("-");
@@ -416,14 +425,14 @@
 		}
 		return string;
 	}
-	function y_input_date_to_indonesia_long_date(date) {
+	const yInputDateToIndonesiaLongDate = function(date) {
 		if (date) {
 			array_date = date.split("/");
 			var yyyy = (array_date[2]);
 			var mm = (array_date[0]);
 			var dd = (array_date[1]);
 			var std_date = yyyy + '-' + y_add_pre_zero(mm, 2) + '-' + y_add_pre_zero(dd, 2);
-			var formated_date = y_format_long_date_id(std_date);
+			var formated_date = yFormatLongDateId(std_date);
 			return formated_date;
 		}
 		else {
@@ -443,7 +452,7 @@
 			return "";
 		}
 	}
-	function y_format_long_date_id(date) {
+	function yFormatLongDateId(date) {
 		if (typeof date != 'undefined' && date !== null) {
 			if (date !== '') {
 				array_global = date.split(" ");
@@ -778,36 +787,66 @@
 				break;
 		}
 		return new Date(y, (parseInt(m) - 1), d)
-
 	}
 
-
-
 	if (typeof window === 'object' && typeof window.document === 'object') {
-		window.y_now_string = y_now_string;
-		window.y_now = y_now_string;
-		window.y_day = y_day;
-		window.y_month_name = y_month_name;
-		window.y_yesterday = y_yesterday;
-		window.y_tomorrow = y_tomorrow;
-		window.y_last_hour = y_last_hour;
-		window.y_next_hour = y_next_hour;
-		window.y_input_date_to_indonesia_long_date = y_input_date_to_indonesia_long_date;
-		window.y_datetime_convert = y_datetime_convert;
-		window.y_format_long_date_id = y_format_long_date_id;
-		window.y_format_number = y_format_number;
-		window.y_format_currency = y_format_currency;
-		window.y_to_currency = y_to_currency;
-		window.y_terbilang_bahasa = y_terbilang_bahasa;
-		window.y_add_pre_zero = y_add_pre_zero;
-		window.y_math = y_math;
-		window.y_toTitleCase = toTitleCase;
-		window.y_this_month = y_this_month;
-		window.y_last_month = y_last_month;
-		window.y_next_month = y_next_month;
-		window.getJsDateFromExcel = getJsDateFromExcel;
-		window.monthDiff = monthDiff;
-		window.getDateObject = getDateObject;
-		window.dateFromFormat = dateFromFormat;
+		window.yNow = yNow
+		window.y_now_string = yNow
+		window.y_now = yNow		
+
+		window.yDay = yDay
+		window.y_day = yDay
+
+		window.yMonthName = yMonthName
+		window.y_month_name = yMonthName
+
+		window.yYesterday = yYesterday
+		window.y_yesterday = yYesterday
+
+		window.yTomorrow = yTomorrow
+		window.y_tomorrow = yTomorrow
+
+		window.yLastHour = yLastHour
+		window.y_last_hour = yLastHour
+
+		window.yNextHour = yNextHour
+		window.y_next_hour = yNextHour
+
+		window.yInputDateToIndonesiaLongDate = yInputDateToIndonesiaLongDate
+		window.y_input_date_to_indonesia_long_date = yInputDateToIndonesiaLongDate
+
+		window.yDatetimeConvert = yDatetimeConvert
+		window.y_datetime_convert = yDatetimeConvert
+
+		window.yFormatLongDateId = yFormatLongDateId
+		window.y_format_long_date_id = yFormatLongDateId
+
+		window.yThisMonth = yThisMonth
+		window.y_this_month = yThisMonth
+
+		window.yLastMonth = yLastMonth
+		window.y_last_month = yLastMonth
+
+		window.yNextMonth = yNextMonth
+		window.y_next_month = yNextMonth
+
+		window.getJsDateFromExcel = getJsDateFromExcel
+		window.monthDiff = monthDiff
+		window.getDateObject = getDateObject
+		window.dateFromFormat = dateFromFormat
+
+		// Number and formatting
+		window.y_format_number = y_format_number
+		window.y_add_pre_zero = y_add_pre_zero
+		window.y_toTitleCase = toTitleCase
+
+		// Currency		
+		window.y_format_currency = y_format_currency
+		window.y_to_currency = y_to_currency
+		window.y_terbilang_bahasa = y_terbilang_bahasa
+
+		// Math
+		window.yMath = yMath
+		window.y_math = yMath
 	}
 })(window)
