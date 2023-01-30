@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Y Panel Framework
-// version=230110
+// version=230112
 //----------------------------------------------------------------------------------------------------------------------
 // 2022-04-20 - remove class red from button select and print button
 // 2022-06-16 - datetime array
@@ -10,6 +10,7 @@
 // 2022.10.06 - add radio option for table
 // 2022.11.11 - add input type file and preview image
 // 2023.01.10 - implement select 2
+// 2023.01.12 - add option yearRange, minDate, maxDate to datepicker
 //----------------------------------------------------------------------------------------------------------------------
 (function (window, undefined) {
 	var document = window.document
@@ -236,6 +237,9 @@
 			const h = []
 			let useDate = false
 			const dateArrayField = []
+			const dateArrayYearRange = []
+			const dateArrayMinDate = []
+			const dateArrayMaxDate = []
 			let useTime = false
 			const timeArrayField = []
 			const rowClass = []
@@ -535,6 +539,9 @@
 								useDate = true;
 								isDatePicker = true;
 								dateArrayField.push(p.name)
+								dateArrayYearRange.push(typeof p.yearRange !== 'undefined' ? p.yearRange : false)
+								dateArrayMinDate.push(typeof p.minDate !== 'undefined' ? p.minDate : false)
+								dateArrayMaxDate.push(typeof p.maxDate !== 'undefined' ? p.maxDate : false)
 								classInput += ' datepicker input_master_text';
 								break;
 							case 'time':
@@ -577,7 +584,13 @@
 									useDate = true
 									isDatePicker = true
 									dateArrayField.push(p.name + '_start')
+									dateArrayYearRange.push(typeof p.yearRange !== 'undefined' ? p.yearRange : false)
+									dateArrayMinDate.push(typeof p.minDate !== 'undefined' ? p.minDate : false)
+									dateArrayMaxDate.push(typeof p.maxDate !== 'undefined' ? p.maxDate : false)
 									dateArrayField.push(p.name + '_end')
+									dateArrayYearRange.push(typeof p.yearRange !== 'undefined' ? p.yearRange : false)
+									dateArrayMinDate.push(typeof p.minDate !== 'undefined' ? p.minDate : false)
+									dateArrayMaxDate.push(typeof p.maxDate !== 'undefined' ? p.maxDate : false)
 									break;
 								case 'time':
 									useTime = true
@@ -773,6 +786,18 @@
 								}
 							}
 						}
+					}
+					const yearRange = typeof dateArrayYearRange[i] != 'undefined' ? dateArrayYearRange[i] : false
+					if(yearRange) {
+						options.yearRange = yearRange
+					}
+					const minDate = typeof dateArrayMinDate[i] != 'undefined' ? dateArrayMinDate[i] : false
+					if(minDate) {
+						options.minDate = minDate
+					}
+					const maxDate = typeof dateArrayMaxDate[i] != 'undefined' ? dateArrayMaxDate[i] : false
+					if(maxDate) {
+						options.maxDate = maxDate
 					}
 					M.Datepicker.init(el, options)
 				}
@@ -1812,6 +1837,9 @@
 			let rowContent = ''
 			let useDate = false
 			const dateArrayField = []
+			const dateArrayYearRange = []
+			const dateArrayMinDate = []
+			const dateArrayMaxDate = []
 			let useTime = false
 			const timeArrayField = []
 			const classTr = 'panel_input_row_with_sidebar panel_input_row_' + func + ' panel_input_row_' + func + '_clickable';
@@ -1830,6 +1858,9 @@
 						case 'date':
 							useDate = true;
 							dateArrayField.push(item.name)
+							dateArrayYearRange.push(typeof item.yearRange !== 'undefined' ? item.yearRange : false)
+							dateArrayMinDate.push(typeof item.minDate !== 'undefined' ? item.minDate : false)
+							dateArrayMaxDate.push(typeof item.maxDate !== 'undefined' ? item.maxDate : false)
 							break;
 						case 'time':
 							useTime = true;
@@ -2201,6 +2232,18 @@
 								}
 							}
 						}
+					}
+					const yearRange = typeof dateArrayYearRange[i] != 'undefined' ? dateArrayYearRange[i] : false
+					if(yearRange) {
+						options.yearRange = yearRange
+					}
+					const minDate = typeof dateArrayMinDate[i] != 'undefined' ? dateArrayMinDate[i] : false
+					if(minDate) {
+						options.minDate = minDate
+					}
+					const maxDate = typeof dateArrayMaxDate[i] != 'undefined' ? dateArrayMaxDate[i] : false
+					if(maxDate) {
+						options.maxDate = maxDate
 					}
 					M.Datepicker.init(el, options);
 				}
