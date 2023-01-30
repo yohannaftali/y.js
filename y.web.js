@@ -1,9 +1,10 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Y Web Framework
-// version = 221111
+// version = 230130
 //----------------------------------------------------------------------------------------------------------------------
 // update version when updating module js
 // 2022.11.11 - group icon font awesome
+// 2023.01.30 - multiple dashboard
 
 (function (window, undefined) {
     const version = '221111'
@@ -888,12 +889,13 @@
             $('.btn-module').removeClass('active');
             $(selector).addClass('active');
             $('#title-module').html(modLabel);
-            if (modName != 'home') {
+            const isDashboard = modName == 'home' || modName.startsWith('dashboard_') ? true : false
+            if (!isDashboard) {
                 window.yData.moduleOption = {};
                 this.createModule(modName);
             }
             else {
-                this.createDashboard();
+                this.createDashboard(modName);
             }
         }
         hideModuleIcon(module_list) {
@@ -956,15 +958,16 @@
             searchInput.value = '';
             that.hideModuleIcon(data.modules);
         }
-        createDashboard() {
-            var that = this;
-            var dashboard = this.data.dashboard;
-            var url_button = 'C_dashboard_' + dashboard + '/index';
-            var success = function (h) {
-                if (typeof h.secure !== 'undefined' && h.secure !== '' && typeof h.secure.dashboard !== 'undefined' && h.secure.dashboard !== '' && typeof h.secure.access !== 'undefined' && h.secure.access === true && h.secure.login !== 'undefined' && h.secure.login === true) {
-                    var moduleSection = that.getElement('module-section');
-                    var modulePanel = yHtml({ element: 'div', id: 'module-panel', class: 'wrapper', content: '' });
-                    var script = document.createElement('script');
+        createDashboard(modName) {
+            const that = this;
+            const dashboard = modName == 'home' ? this.data.dashboard : modName.replace('dashboard_', '');
+            const urlDashboard = modName == 'home' ? 'C_dashboard_' + dashboard + '/index' : 'C_' + modName + '/index';
+            const success = function (h) {                
+                //if (typeof h.secure !== 'undefined' && h.secure !== '' && typeof h.secure.dashboard !== 'undefined' && h.secure.dashboard !== '' && typeof h.secure.access !== 'undefined' && h.secure.access === true && h.secure.login !== 'undefined' && h.secure.login === true) {
+                if (h.secure && h.secure.dashboard && h.secure.access === true && h.secure.login === true) {
+                    const moduleSection = that.getElement('module-section');
+                    const modulePanel = yHtml({ element: 'div', id: 'module-panel', class: 'wrapper', content: '' });
+                    const script = document.createElement('script');
                     script.setAttribute('src', window.location.origin + '/js/dashboard/v.' + dashboard + '.js');
                     script.type = "text/javascript";
                     moduleSection.innerHTML = modulePanel;
@@ -975,12 +978,12 @@
                     window.location = 'C_login';
                 }
             };
-            var complete = function () { };
-            var error = function () { };
-            var jsonError = function (e) {
+            const complete = function () { };
+            const error = function () { };
+            const jsonError = function (e) {
                 window.location = 'C_login';
             };
-            getAjax(url_button, '', success, complete, error, jsonError);
+            getAjax(urlDashboard, '', success, complete, error, jsonError);
         }
         createModule(mod_name) {
             var that = this;
