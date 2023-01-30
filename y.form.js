@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Y Form Framework
-// version=230210
+// version=230118
 //----------------------------------------------------------------------------------------------------------------------
 // 2021.10.26
 // 2021.11.23
@@ -22,6 +22,9 @@
 // 2022.11.10 - fix handle paste CTRL + V
 // 2022.11.11 - add handle file upload and preview image
 // 2023.01.10 - fix select2 label active/inactive
+// 2023.01.12 - add option yearRange, minDate, maxDate to datepicker
+// 2023.01.13 - fix syncDatePicker
+// 2023.01.18 - add quote option at downloadCsv
 //----------------------------------------------------------------------------------------------------------------------
 
 (function (window, undefined) {
@@ -94,7 +97,8 @@
 			this.historyHeader = this.panel.historyHeader
 			this.history = this.panel.history
 
-			this.preventKeyEnter(this.idForm)
+			//this.preventKeyEnter(this.idForm)
+			this.preventKeyEnter('#main')
 			this.pasteListener()
 			this.listenerAutoSum()
 			this.listenerFilterDetail()
@@ -221,6 +225,8 @@
 				const idContext = 'context-menu-table-' + func
 				const idItem = 'context-menu-item-filter-' + func
 				const idItemClear = 'context-menu-item-filter-' + func + '-clear'
+				const idTablePdf = 'context-menu-item-pdf-' + func + '-download'
+				const idTableCsv = 'context-menu-item-csv-' + func + '-download'
 				yM.div({
 					id: idContainer,
 					class: 'container-context-menu-table',
@@ -233,15 +239,33 @@
 							yM.li({
 								content: yM.a({
 									id: idItem,
-									before: yM.icon({ class: 'fas fa-filter fa-xs' }),
+									class: 'context-menu-table-item',
+									before: yM.icon({ class: 'fas fa-filter fa-xs context-menu-table-item-icon' }),
 									content: yStr('filterApply')
 								})
 							}) +
 							yM.li({
 								content: yM.a({
 									id: idItemClear,
-									before: yM.icon({ class: 'fas fa-sync fa-xs' }),
+									class: 'context-menu-table-item',
+									before: yM.icon({ class: 'fas fa-sync fa-xs context-menu-table-item-icon' }),
 									content: yStr('filterClear')
+								})
+							}) +
+							yM.li({
+								content: yM.a({
+									id: idTablePdf,
+									class: 'context-menu-table-item',
+									before: yM.icon({ class: 'fas fa-file-pdf fa-xs context-menu-table-item-icon' }),
+									content: 'PDF'
+								})
+							}) +
+							yM.li({
+								content: yM.a({
+									id: idTableCsv,
+									class: 'context-menu-table-item',
+									before: yM.icon({ class: 'fas fa-file-csv fa-xs context-menu-table-item-icon' }),
+									content: 'CSV'
 								})
 							})
 					})
@@ -283,6 +307,20 @@
 					$('.input-filter-' + func).val('')
 					that.updateTable(func, that.data.master[func])
 				});
+
+				$(classTable).off('click', '#' + idTablePdf);
+				$(classTable).on('click', '#' + idTablePdf, function (e) {
+					e.preventDefault();
+					const table = document.querySelector(classTable);
+					const doc = new jsPDF();
+					doc.autoTable({ html: table });
+					doc.save("table.pdf");
+				});
+				$(classTable).off('click', '#' + idTableCsv);
+				$(classTable).on('click', '#' + idTableCsv, function (e) {
+					e.preventDefault();
+					downloadCsv(that.field[func], that.data[func], `${func}.csv`)
+				});
 			}
 		}
 		setFormatDate(format) {
@@ -296,30 +334,51 @@
 			option = elvis(option, true);
 			this.withoutSubmitButton = option;
 		}
+		// preventKeyEnter(selector) {
+		// 	$(selector).off("keypress", 'textarea.textarea_single').on("keypress", 'textarea.textarea_single', function (e) {
+		// 		const key = (e.keyCode ? e.keyCode : e.which)
+		// 		const isShift = !!e.shiftKey
+		// 		const data = $(this).attr('data')
+		// 		if (isShift) {
+		// 			if (key == 13) {
+		// 				e.preventDefault();
+		// 				if (data && data != '') {
+		// 					$(this).parent().parent().parent().prev().children('td').children('div').children('textarea.input_' + data).focus();
+		// 				}
+		// 			}
+		// 		}
+		// 		else {
+		// 			if (key == 13) {
+		// 				e.preventDefault()
+		// 				if (data && data != '') {
+		// 					$(this).parent().parent().parent().next().children('td').children('div').children('textarea.input_' + data).focus();
+		// 				}
+		// 			}
+		// 			if (key == 96) {
+		// 				e.preventDefault();
+		// 				$(selector).submit();
+		// 			}
+		// 		}
+		// 	});
+		// }
 		preventKeyEnter(selector) {
-			$(selector).off("keypress", 'textarea.textarea_single')
-			$(selector).on("keypress", 'textarea.textarea_single', function (e) {
-				const key = (e.keyCode ? e.keyCode : e.which)
-				const isShift = !!e.shiftKey
-				const data = $(this).attr('data')
-				if (isShift) {
-					if (key == 13) {
+			const parent = document.querySelector(selector);
+			parent.addEventListener('keypress', function (e) {
+				if (e.target && e.target.matches('textarea.textarea_single')) {
+					const textarea = e.target;
+					const key = e.which || e.keyCode;
+					const isShift = e.shiftKey;
+					const data = textarea.getAttribute('data');
+					if (key === 13) {
 						e.preventDefault();
-						if (data && data != '') {
-							$(this).parent().parent().parent().prev().children('td').children('div').children('textarea.input_' + data).focus();
+						if (data && data !== '') {
+							const target = textarea.parentNode.parentNode.parentNode[isShift ? 'previousElementSibling' : 'nextElementSibling']
+								.querySelector(`textarea.input_${data}`);
+							target.focus();
 						}
-					}
-				}
-				else {
-					if (key == 13) {
-						e.preventDefault()
-						if (data && data != '') {
-							$(this).parent().parent().parent().next().children('td').children('div').children('textarea.input_' + data).focus();
-						}
-					}
-					if (key == 96) {
+					} else if (key === 96) {
 						e.preventDefault();
-						$(selector).submit();
+						parent.querySelector(selector).submit();
 					}
 				}
 			});
@@ -340,10 +399,10 @@
 		}
 		listenerSelect2Change() {
 			$(this.wrapper).off('select2:select')
-			$(this.wrapper).on('select2:select', function(e) {
+			$(this.wrapper).on('select2:select', function (e) {
 				const newVal = $(e.target).val()
 				$(e.target).siblings('label').removeClass('active')
-				if(newVal != '') {
+				if (newVal != '') {
 					$(e.target).siblings('label').addClass('active')
 				}
 			})
@@ -1111,7 +1170,7 @@
 							}
 						}
 						else {
-							$('.input_'+ table + '_text.input_' + field.name).each(function() {
+							$('.input_' + table + '_text.input_' + field.name).each(function () {
 								const name = $(this).attr('name')
 								if ($(this)[0].files[0] !== 'undefined') {
 									fileData.push({
@@ -1239,7 +1298,7 @@
 							yM.setTextValue('#label_info_' + name, value);
 						}
 						else if (!(isParam(field[i], 'label_only') || isParam(field[i], 'labelOnly'))) {
-							
+
 							if (!(typeof field[i].type !== 'undefined' && field[i].type === 'file')) {
 								// type input not file
 								// All input type will be update here
@@ -1941,32 +2000,71 @@
 		/////////////////////////////////////////////////////////////////////////////////////
 		// Add Row on Table
 		/////////////////////////////////////////////////////////////////////////////////////
-		addRow(table, i, data, last, triggerField, option) {
-		
-			data = typeof data !== 'undefined' ? data : { no: (i + 1) }
-			table = typeof table !== 'undefined' ? table : 'detail'
-			last = typeof last !== 'undefined' ? last : false
-			option = typeof option !== 'undefined' ? option : 'show'
-			if (table != 'detail' || table != 'history') {
-				this.data.master = typeof this.data.master !== 'undefined' ? this.data.master : {}
-				this.data.master[table] = typeof this.data.master[table] !== 'undefined' ? this.data.master[table] : []
-				this.data.master[table][i] = data
-				this.data[table] = typeof this.data[table] !== 'undefined' ? this.data[table] : []
-				this.data[table][i] = data
+		// addRow(table, i, data, last, triggerField, option) {
+
+		// 	data = typeof data !== 'undefined' ? data : { no: (i + 1) }
+		// 	table = typeof table !== 'undefined' ? table : 'detail'
+		// 	last = typeof last !== 'undefined' ? last : false
+		// 	option = typeof option !== 'undefined' ? option : 'show'
+		// 	if (table != 'detail' || table != 'history') {
+		// 		this.data.master = typeof this.data.master !== 'undefined' ? this.data.master : {}
+		// 		this.data.master[table] = typeof this.data.master[table] !== 'undefined' ? this.data.master[table] : []
+		// 		this.data.master[table][i] = data
+		// 		this.data[table] = typeof this.data[table] !== 'undefined' ? this.data[table] : []
+		// 		this.data[table][i] = data
+		// 	}
+		// 	else {
+		// 		this.data[table] = typeof this.data[table] !== 'undefined' ? this.data[table] : []
+		// 		this.data[table][i] = data
+		// 	}
+		// 	const callbackBefore = typeof option !== 'undefined' && typeof option.callbackBefore !== 'undefined' ? option.callbackBefore : function () { }
+		// 	const callback = typeof option !== 'undefined' && typeof option.callback !== 'undefined' ? option.callback : function () { }
+		// 	const callbackLast = typeof option !== 'undefined' && typeof option.callbackLast !== 'undefined' ? option.callbackLast : function () { }
+		// 	const callbackNotLast = typeof option !== 'undefined' && typeof option.callbackNotLast !== 'undefined' ? option.callbackNotLast : function () { }
+		// 	callbackBefore(i)
+		// 	const tr = this.panel.writeRow(i, table, data, option)
+		// 	if (last) {
+		// 		this.newRowTrigger[table] = typeof this.newRowTrigger[table] !== 'undefined' ? this.newRowTrigger[table] : false;
+		// 		triggerField = typeof triggerField !== 'undefined' ? triggerField : this.newRowTrigger[table]
+		// 		if (triggerField) {
+		// 			$(':input[name="' + triggerField + '[' + i + ']"]').addClass('new-row-trigger')
+		// 		}
+		// 		if ($(tr).children('.td-button-remove').length > 0) {
+		// 			let prevTr = $(tr).prev()
+		// 			if (prevTr.length > 0) {
+		// 				const prevTd = $(prevTr).children('.td-button-remove')
+		// 				const icon = prevTd.children('button').children('i').html();
+		// 				if (icon === 'check_circle' || icon === 'radio_button_unchecked') {
+		// 					const td = $(tr).children('.td-button-remove')
+		// 					td.children('button').children('i').html('radio_button_unchecked')
+		// 				}
+		// 			}
+		// 		}
+		// 		callbackLast(tr)
+		// 		this.resetTableNumber(table)
+		// 	}
+		// 	else {
+		// 		callbackNotLast(tr)
+		// 	}
+		// 	this.showTableInfo(table)
+		// 	callback(tr)
+		// }
+		addRow(table = 'detail', i, data, last = false, triggerField, option = 'show') {
+			data = data || { no: (i + 1) }
+			switch (table) {
+				case 'detail':
+				case 'history':
+					this.data[table][i] = data;
+					break;
+				default:
+					this.data[table][i] = data;
 			}
-			else {
-				this.data[table] = typeof this.data[table] !== 'undefined' ? this.data[table] : []
-				this.data[table][i] = data
-			}
-			const callbackBefore = typeof option !== 'undefined' && typeof option.callbackBefore !== 'undefined' ? option.callbackBefore : function () { }
-			const callback = typeof option !== 'undefined' && typeof option.callback !== 'undefined' ? option.callback : function () { }
-			const callbackLast = typeof option !== 'undefined' && typeof option.callbackLast !== 'undefined' ? option.callbackLast : function () { }
-			const callbackNotLast = typeof option !== 'undefined' && typeof option.callbackNotLast !== 'undefined' ? option.callbackNotLast : function () { }
-			callbackBefore(i)
-			const tr = this.panel.writeRow(i, table, data, option)
+			const { callbackBefore = () => { }, callback = () => { }, callbackLast = () => { }, callbackNotLast = () => { } } = option;
+			callbackBefore(i);
+			const tr = this.panel.writeRow(i, table, data, option);
 			if (last) {
-				this.newRowTrigger[table] = typeof this.newRowTrigger[table] !== 'undefined' ? this.newRowTrigger[table] : false;
-				triggerField = typeof triggerField !== 'undefined' ? triggerField : this.newRowTrigger[table]
+				this.newRowTrigger[table] = this.newRowTrigger[table] || false;
+				triggerField = triggerField || this.newRowTrigger[table];
 				if (triggerField) {
 					$(':input[name="' + triggerField + '[' + i + ']"]').addClass('new-row-trigger')
 				}
@@ -2143,6 +2241,7 @@
 		// Write Table
 		/////////////////////////////////////////////////////////////////////////////////////
 		writeTable(table, callbackAfterInitSelect) {
+			showPreloader()
 			table = typeof table !== 'undefined' ? table : 'detail'
 			callbackAfterInitSelect = typeof callbackAfterInitSelect !== 'undefined' ? callbackAfterInitSelect : function () { }
 
@@ -2184,6 +2283,7 @@
 				this.showTableInfo(table)
 			}
 			this.panel.initSelect(table, undefined, callbackAfterInitSelect)
+			hidePreloader()
 		}
 		write_table(table, callbackAfterInitSelect) { this.writeTable(table, callbackAfterInitSelect) }
 
@@ -2371,7 +2471,6 @@
 		// Update Table With Ajax
 		//
 		updateTableFromAjax(opt) {
-
 			opt = typeof opt !== 'undefined' ? opt : {}
 			const requestMethod = typeof opt.requestMethod !== 'undefined' ? opt.requestMethod : 'get'
 			const table = typeof opt === 'string' ? opt : typeof opt.table !== 'undefined' ? opt.table : 'detail'
@@ -2450,6 +2549,7 @@
 		}
 		// Auto Add Row
 		writeTableSimple(table, callbackAfterInitSelect) {
+			showPreloader()
 			table = typeof table !== 'undefined' ? table : 'detail'
 			callbackAfterInitSelect = typeof callbackAfterInitSelect !== 'undefined' ? callbackAfterInitSelect : function () { }
 			const data = typeof this.data[table] !== 'undefined' ? this.data[table] : {}
@@ -2462,6 +2562,7 @@
 				this.addRow(table, i, param, last)
 			}
 			this.panel.initSelect(table, undefined, callbackAfterInitSelect);
+			hidePreloader()
 		}
 
 		//----------------------------------------------------------------------------------------------------------------------
@@ -4665,13 +4766,22 @@
 		}
 		initModalDatePicker(group, field) {
 			const that = this
-			let inputArray = [];
+			let inputArrayName = [];
+			let inputArrayYearRange = [];
+			let inputArrayMinDate = [];
+			let inputArrayMaxDate = [];
 			let inputArrayTable = [];
 			for (let i in field) {
 				if (typeof field[i].type !== 'undefined' && field[i].type == 'date') {
 					const name = typeof field[i].name !== 'undefined' ? field[i].name : false;
+					const yearRange = typeof field[i].yearRange !== 'undefined' ? field[i].yearRange : false;
+					const minDate = typeof field[i].minDate !== 'undefined' ? field[i].minDate : false;
+					const maxDate = typeof field[i].maxDate !== 'undefined' ? field[i].maxDate : false;
 					if (name) {
-						inputArray.push(name);
+						inputArrayName.push(name);
+						inputArrayYearRange.push(yearRange);
+						inputArrayMinDate.push(minDate);
+						inputArrayMaxDate.push(maxDate);
 					}
 				}
 				if (typeof field[i].table !== 'undefined' && field[i].table == true) {
@@ -4689,8 +4799,8 @@
 					}
 				}
 			}
-			const prefId = '#input_';
-			inputArray.forEach(subId => {
+			const prefId = '#input_'
+			inputArrayName.forEach(function (subId, index) {
 				yM.div({
 					id: 'container-datepicker-' + subId,
 					class: 'parent-container-datepicker',
@@ -4700,13 +4810,25 @@
 				const elem = document.querySelectorAll(prefId + subId);
 				const opt = {
 					autoClose: true,
-					format: this.formatDate,
+					format: that.formatDate,
 					container: '#container-datepicker-' + subId,
 					onOpen: function () {
 						const dateString = $('#input_' + subId).val();
 						that.syncDatePicker(this, dateString);
 					}
 				};
+				const yearRange = typeof inputArrayYearRange[index] !== 'undefined' ? inputArrayYearRange[index] : false
+				if (yearRange) {
+					opt.yearRange = yearRange
+				}
+				const minDate = typeof inputArrayMinDate[index] !== 'undefined' ? inputArrayMinDate[index] : false
+				if (minDate) {
+					opt.minDate = minDate
+				}
+				const maxDate = typeof inputArrayMaxDate[index] !== 'undefined' ? inputArrayMaxDate[index] : false
+				if (maxDate) {
+					opt.maxDate = maxDate
+				}
 				M.Datepicker.init(elem, opt);
 			});
 			$(this.wrapper).off('click', '.datepicker-done');
@@ -4722,8 +4844,8 @@
 			});
 		}
 		syncDatePicker(el, dateString) {
-			let inputDate = getDateObject(dateString, this.formatDate);
-			el.setDate(inputDate);
+			const inputDate = getDateObject(dateString, this.formatDate)
+			el.setDate(inputDate)
 		}
 		createModalTriggerButton(id, content, icon, href) { yM.li({ parent: '#toolbar-module-left', content: yM.button({ element: 'a', class: 'btn light-blue darken-1 white-text waves-effect waves-blue btn-small btn-back tooltipped modal-trigger', href: href, id: id, content: content, icon: icon }) }); }
 
@@ -5220,8 +5342,9 @@
 		return result;
 	};
 
-	const downloadCsv = function (field, data, filename, regional, confirmation) {
+	const downloadCsv = function (field, data, filename, regional, confirmation, quote) {
 		confirmation = typeof confirmation !== 'undefined' ? confirmation : yStr('confirmationDownload')
+		qs = typeof quote !== 'undefined' ? quote : '"'
 		if (data !== null) {
 			const r = confirmation ? confirm(confirmation) : true
 			if (r === true) {
@@ -5245,7 +5368,6 @@
 				data = typeof data != 'object' ? JSON.parse(data) : data;
 				let label = '';
 				let eof = '\r\n';
-				let qs = '"';
 				let qe = qs + separator;
 				let is_number = [];
 				let i, j, no_of_column;
