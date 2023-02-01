@@ -70,6 +70,7 @@
 			this.labelHistory = elvis(this.label.history, '')
 			this.field = []
 			this.data = {
+				master: {},
 				detail: {},
 				history: {}
 			}
@@ -1765,6 +1766,7 @@
 					$(selector).html('')
 					const tableShown = `${table}Shown`
 					this.vars[tableShown] = 0
+					this.data.master = typeof this.data.master !== 'undefined' ? this.data.master : {}
 					this.data.master[table] = []
 					this.data[table] = []
 					callback()
@@ -1802,7 +1804,9 @@
 			$('.header-sum').text('');
 			$('.footer-sum').text('');
 			if (resetData) {
-				this.data = {};
+				this.data['master'] = []
+				this.data['detail'] = []
+				this.data['history'] = []
 			}
 			if (!letEmpty) {
 				this.writeDetail();
@@ -1817,7 +1821,9 @@
 			this.vars['historyShown'] = 0
 			this.data['history'] = []
 			if (resetData) {
-				this.data = {};
+				this.data['master'] = []
+				this.data['detail'] = []
+				this.data['history'] = []
 			}
 			if (!letEmpty) {
 				this.writeHistory();
@@ -4917,8 +4923,6 @@
 
 		includeScript(scriptName) {
 			const scriptId = scriptName.replace(/\.[^/.]+$/, "")
-
-			console.log(document.getElementById(scriptId))
 			if(document.getElementById(scriptId) === null){
 				const moduleSection = document.getElementById('module-section');			
 				const script = document.createElement('script');
