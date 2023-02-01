@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Y Form Framework
-// version=230118
+// version=230201
 //----------------------------------------------------------------------------------------------------------------------
 // 2021.10.26
 // 2021.11.23
@@ -25,6 +25,7 @@
 // 2023.01.12 - add option yearRange, minDate, maxDate to datepicker
 // 2023.01.13 - fix syncDatePicker
 // 2023.01.18 - add quote option at downloadCsv
+// 2023.02.01 - add includeScript function, fix addRow error when data not defined
 //----------------------------------------------------------------------------------------------------------------------
 
 (function (window, undefined) {
@@ -53,6 +54,13 @@
 				this.formatDate = elvis(param.formatDate, 'dd/mm/yyyy')
 				this.formatTime = elvis(param.formatTime, 'hh:ii')
 			}
+			const include = elvis(this.include, [])
+			// load include script first
+			for(let i in include){
+				console.log(include[i])
+				this.includeScript(include[i])
+			}
+
 			this.wrapper = $('#module-panel');
 			this.elWrapper = document.getElementById('module-panel')
 			this.idForm = '#' + this.name
@@ -2054,9 +2062,11 @@
 			switch (table) {
 				case 'detail':
 				case 'history':
+					this.data[table] = typeof this.data[table] !== 'undefined' ? this.data[table] : []
 					this.data[table][i] = data;
 					break;
 				default:
+					this.data[table] = typeof this.data[table] !== 'undefined' ? this.data[table] : []
 					this.data[table][i] = data;
 			}
 			const { callbackBefore = () => { }, callback = () => { }, callbackLast = () => { }, callbackNotLast = () => { } } = option;
@@ -4903,6 +4913,23 @@
 					}
 				}
 			})
+		}
+
+		includeScript(scriptName) {
+			const scriptId = scriptName.replace(/\.[^/.]+$/, "")
+
+			console.log(document.getElementById(scriptId))
+			if(document.getElementById(scriptId) === null){
+				const moduleSection = document.getElementById('module-section');			
+				const script = document.createElement('script');
+				script.setAttribute('src', window.location.origin + `/js/include/${scriptName}`);
+				script.type = "text/javascript";
+				script.id = scriptId
+				moduleSection.appendChild(script);
+			}
+			else{
+				console.log('another script with same id already loaded')
+			}
 		}
 	}
 
