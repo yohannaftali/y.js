@@ -1,9 +1,11 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Y App Framework
-// version=221111
+// version=230427
 //----------------------------------------------------------------------------------------------------------------------
 // 2022.09.08 add attribute options
 // 2022.11.11 add preview on htmlAttr
+// 2023.04.17 - fix show wait
+// 2023.04.27 - add locale html attribute
 
 (function (window, undefined) {
 	const document = window.document
@@ -27,7 +29,7 @@
 			y(document).on('DOMContentLoaded', completed);
 			y(window).on('load', completed);
 		}
-	}	
+	}
 	const htmlAttr = new Array(
 		'accept', 'accept-charset', 'accesskey', 'action', 'alt', 'async', 'autocomplete', 'autofocus', 'autoplay',
 		'background', 'bind',
@@ -40,24 +42,24 @@
 		'headers', 'height', 'hidden', 'high', 'href', 'hreflang', 'http-equiv',
 		'ico', 'id', 'ismap',
 		'kind',
-		'lab', 'label', 'lang', 'last', 'list', 'loop', 'low',
+		'lab', 'label', 'lang', 'last', 'list', 'locale', 'locale-options', 'loop', 'low',
 		'max', 'maxlength', 'media', 'method', 'min', 'multiple', 'muted', 'mod',
 		'name', 'next', 'novalidate',
-	 	'onabort', 'onafterprint', 
-	 		'onbeforeprint', 'onbeforeunload', 'onblur', 
-	 		'oncanplay', 'oncanplaythrough', 'onchange', 'onclick', 'oncontextmenu', 'oncopy', 'oncuechange', 'oncut', 
-	 		'ondblclick', 'ondrag', 'ondragend', 'ondragenter', 'ondragleave', 'ondragover', 'ondragstart', 'ondrop', 'ondurationchange',
-	 		'onemptied', 'onended', 'onerror', 
-	 		'onfocus', 'onhashchange', 'oninput',
-	 		'onoffline', 'ononline',
-	 		'onpagehide', 'onpageshow', 'onpaste', 'onpause', 'onplay', 'onplaying', 'onpopstate', 'onprogress',
-	 		'onratechange','onreset', 'onresize',
-	 		'onscroll', 'onsearch',  'onseeked', 'onseeking', 'onselect', 'onstalled', 'onstorage', 'onsubmit', 'onsuspend', 
-	 		'ontimeupdate', 'ontoggle', 
-	 		'onunload', 'onvolumechange', 'onwaiting', 'onwheel',
-			'open', 'optimum', 
-		'parent', 'pattern', 'placeholder', 'poster', 'preload' ,'prev', 'preview', 'progress',
-		'readonly', 'rel',  'required', 'reversed', 'row', 'rows', 'rowspan',
+		'onabort', 'onafterprint',
+		'onbeforeprint', 'onbeforeunload', 'onblur',
+		'oncanplay', 'oncanplaythrough', 'onchange', 'onclick', 'oncontextmenu', 'oncopy', 'oncuechange', 'oncut',
+		'ondblclick', 'ondrag', 'ondragend', 'ondragenter', 'ondragleave', 'ondragover', 'ondragstart', 'ondrop', 'ondurationchange',
+		'onemptied', 'onended', 'onerror',
+		'onfocus', 'onhashchange', 'oninput',
+		'onoffline', 'ononline',
+		'onpagehide', 'onpageshow', 'onpaste', 'onpause', 'onplay', 'onplaying', 'onpopstate', 'onprogress',
+		'onratechange', 'onreset', 'onresize',
+		'onscroll', 'onsearch', 'onseeked', 'onseeking', 'onselect', 'onstalled', 'onstorage', 'onsubmit', 'onsuspend',
+		'ontimeupdate', 'ontoggle',
+		'onunload', 'onvolumechange', 'onwaiting', 'onwheel',
+		'open', 'optimum',
+		'parent', 'pattern', 'placeholder', 'poster', 'preload', 'prev', 'preview', 'progress',
+		'readonly', 'rel', 'required', 'reversed', 'row', 'rows', 'rowspan',
 		'sandbox', 'scope', 'selected', 'shape', 'sign', 'size', 'sizes', 'spellcheck', 'src', 'srcdoc', 'srclang', 'srcset', 'start', 'step', 'style',
 		'tabindex', 'tag', 'target', 'title', 'translate', 'type',
 		'usemap', 'use-content',
@@ -111,9 +113,8 @@
 		return false;
 	};
 	const _delegationFunction = function (parent, children, handler) {
-		var delegation_function = function (e) {
-			e = e ? e : event;
-			var element = e.srcElement ? e.srcElement : e.target ? e.target : false
+		const delegation_function = function (e) {
+			const element = e.srcElement ? e.srcElement : e.target ? e.target : false;
 			if (typeof children.length === 'undefined') {
 				applyHandler(parent, children, handler, e, element)
 			}
@@ -137,7 +138,7 @@
 		var this_handler;
 		if (_eventHandlers[node]) {
 			if (_eventHandlers[node][event]) {
-				for (var i in _eventHandlers[node][event]) {
+				for (let i in _eventHandlers[node][event]) {
 					var handler_array = _eventHandlers[node][event][i];
 					if ((handler_array.handler.toString() == handler.toString()) && handler_array.capture.toString() == capture.toString()) {
 						this_handler = handler_array.handler;
@@ -221,34 +222,38 @@
 	// Transform object to html code
 	//------------------------------------------------------------------------------
 	const getCode = function (p) {
-		const u = 'undefined'
-		const attr = htmlAttr
-		const at = typeof p.attr !== 'undefined' ? ' ' + p.attr + ' ' : ''
-		const e = p.element
-		const a = '<' + e + ' '
+		const u = 'undefined';
+		const attr = htmlAttr;
+		const at = typeof p.attr !== 'undefined' ? ` ${p.attr} ` : '';
+		const e = p.element;
+		const a = `<${e} `;
 		const b = '>'
-		const c = '</' + e + b
-		const d = ' />'
-		
-		const h = function (x, y) { return x + '="' + y + '" ' }
-		const v = function (x, y) { return typeof (x[y]) !== u ? x[y] : '' }
-		const w = function (x, y) { return x !== '' ? x : y }
-		let s = ''
-		let t = ''
+		const c = `</${e}${b}`;
+		const d = ' />';
 
-		t = v(p, 'content')
-		t = w(t, v(p, 'rel'))
-		t = w(t, v(p, 'rev'))
-		t = w(t, v(p, 'href'))
-		const tb = typeof p.before != u ? p.before : ''
-		const ta = typeof p.after != u ? p.after : ''
-		for (let i in attr) {
-			s += typeof p[attr[i]] !== u ? h(attr[i], p[attr[i]]) : ''
+		const h = function (x, y) { return `${x}="${y}" `; };
+		const v = function (x, y) { return x[y] || ''; }
+		const w = function (x, y) { return x || y; };
+		let s = '';
+		let t = v(p, 'content');
+		t = w(t, v(p, 'rel'));
+		t = w(t, v(p, 'rev'));
+		t = w(t, v(p, 'href'));
+		const tb = p.before || '';
+		const ta = p.after || '';
+		// for (const n of attr) {
+		// 	s += typeof p[n] !== u ? h(n, p[n]) : '';
+		// }
+		for (let i = 0; i < attr.length; i++) {
+			const n = attr[i];
+			if (p.hasOwnProperty(n)) {
+				s += h(n, p[n]);
+			}
 		}
-		s += typeof p.style_width != u ? 'style="width:' + p.style_width + '"' : ''
-		s += typeof p.stylewidth != u ? 'style="width:' + p.stylewidth + '"' : ''
-		s += typeof p.style_height != u ? 'style="height:' + p.style_height + '"' : ''
-		s += typeof p.styleHeight != u ? 'style="height:' + p.styleHeight + '"' : ''
+		s += typeof p.style_width != u ? 'style="width:' + p.style_width + '"' : '';
+		s += typeof p.stylewidth != u ? 'style="width:' + p.stylewidth + '"' : '';
+		s += typeof p.style_height != u ? 'style="height:' + p.style_height + '"' : '';
+		s += typeof p.styleHeight != u ? 'style="height:' + p.styleHeight + '"' : '';
 		if (!(e == 'input' || e == 'img' || e == 'link')) {
 			return a + at + s + b + tb + t + ta + c;
 		} else {
@@ -256,17 +261,8 @@
 		}
 	}
 	const htmlCode = function (p) {
-		let r = '';
-		if (Array.isArray(p)) {
-			for (let i in p) {
-				r += getCode(p[i]);
-			}
-		}
-		else {
-			r = getCode(p);
-		}
-		return r;
-	}
+		return Array.isArray(p) ? p.map(getCode).join('') : getCode(p);
+	};
 
 	//------------------------------------------------------------------------------
 	// yStyle Engine
@@ -340,7 +336,7 @@
 				if (typeof child !== 'object') {
 					child = getElement(child);
 				}
-				parent_handler = _delegationFunction(parent, child, handler);
+				parent_handler = child ? _delegationFunction(parent, child, handler) : () => {};
 				handler = parent_handler;
 			}
 			if (typeof node !== 'object') {
@@ -454,7 +450,6 @@
 	y.prototype.init.prototype = y.prototype;
 	//y.fn.init.prototype = y.fn;
 
-
 	const style = function () {
 		this.file = document.createElement('style');
 		this.file.type = 'text/css';
@@ -485,10 +480,10 @@
 		const interval_time = 13;
 		let section = parseInt(time / interval_time);
 		if (section < 1) { section = 1; }
-		const currentValue = this.style(selector, param)	
+		const currentValue = this.style(selector, param)
 		const start = currentValue.substr(-2) == 'px' ? parseFloat(currentValue.slice(0, -2).trim()) : currentValue
 		const end = value.substr(-2) == 'px' ? parseFloat(value.slice(0, -2).trim()) : value
-		
+
 		// var temp = start;
 		// var step = (end - start) / section;
 		const diff = end - start;
@@ -522,9 +517,9 @@
 					}, interval_time);
 				}
 				else {
-					animate = setInterval(function () { 
-						element.style[param] = data[i]; 
-						i++; 
+					animate = setInterval(function () {
+						element.style[param] = data[i];
+						i++;
 					}, interval_time);
 				}
 			}
@@ -651,8 +646,18 @@
 			}
 		}
 	};
-	function showPreloader() { document.getElementById('ajax-preloader').style.display = 'block' }
-	function hidePreloader() { document.getElementById('ajax-preloader').style.display = 'none' }
+	function showWait() {
+		const wait = document.getElementById('ajax-wait');
+		if (wait !== null) {
+			wait.style.display = 'block';
+		}
+	}
+	function hideWait() {
+		const wait = document.getElementById('ajax-wait');
+		if (wait !== null) {
+			wait.style.display = 'none';
+		}
+	}
 	function handlePaste(obj) {
 		setTimeout(function () { y_get_paste_value(obj); }, 10);
 	}
@@ -721,53 +726,56 @@
 		return d + ' ' + t;
 	}
 
-	const getAjax = function (url, data, success, complete, error, jsonError, withoutPreloader, timeout) {
-		withoutPreloader = typeof withoutPreloader !== 'undefined' ? withoutPreloader : false;
-		if (typeof url !== 'undefined' && url !== '') {
-			if (!withoutPreloader) { showPreloader(); }
-			success = typeof success !== 'undefined' ? success : function () { };
-			success = typeof success !== 'function' ? function () { } : success;
-			complete = typeof complete !== 'undefined' ? complete : function () { };
-			complete = typeof complete !== 'function' ? function () { } : complete;
-			error = typeof error !== 'undefined' ? error : function () { };
-			error = typeof error !== 'function' ? function () { } : error;
-			jsonError = typeof jsonError !== 'undefined' ? jsonError : function (e) { console.log('controller: ' + url); console.log(e); };
-			data = (typeof data !== 'undefined') && (data !== '') ? '?' + data : '';
-			timeout = typeof timeout !== 'undefined' ? timeout : 0;
-			const ajax = new XMLHttpRequest();
-			ajax.open('GET', url + data, true); // true = asynchronous
-			ajax.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-			ajax.onreadystatechange = function () {
-				if (ajax.readyState == 4) {
-					if (ajax.status >= 200 && (ajax.status < 300 || ajax.status === 304)) {
-						try {						
-							const res = JSON.parse(ajax.responseText)
-							success(res)
-						} catch (e) {
-							console.log('controller: ' + url);
-							jsonError(e);
-						}
-					}
-					else {
+	const getAjax = function (
+		url = '',
+		data,
+		success = () => { },
+		complete = () => { },
+		error = () => { },
+		jsonError = (e) => {
+			console.log('controller: ' + url);
+			console.log(e);
+		},
+		noLoadingIndicator = false,
+		timeout = 0
+	) {
+		success = typeof success !== 'function' ? () => { } : success;
+		complete = typeof complete !== 'function' ? () => { } : complete;
+		error = typeof error !== 'function' ? () => { } : error;
+		data = (typeof data !== 'undefined') && (data !== '') ? '?' + data : '';
+		const ajax = new XMLHttpRequest();
+		ajax.open('GET', url + data, true); // true = asynchronous
+		ajax.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+		ajax.onreadystatechange = function () {
+			if (ajax.readyState == 4) {
+				if (ajax.status >= 200 && (ajax.status < 300 || ajax.status === 304)) {
+					if (!noLoadingIndicator) { hideWait(); };
+					try {
+						const res = JSON.parse(ajax.responseText)
+						success(res)
+					} catch (e) {
 						console.log('controller: ' + url);
-						error(ajax.status);
+						jsonError(e);
 					}
-					if (!withoutPreloader) { hidePreloader(); }
-					complete();
 				}
-			};
-			ajax.timeout = timeout;
-			try {
-				ajax.send(null);
-				return (ajax.status >= 200 && (ajax.status < 300 || ajax.status === 304));
+				else {
+					if (!noLoadingIndicator) { hideWait(); };
+					console.log('controller: ' + url);
+					error(ajax.status);
+				}
+				complete();
 			}
-			catch (e) {
-				console.log('controller: ' + url);
-				console.log(e);
-				return false;
-			}
+		};
+		ajax.timeout = timeout;
+		try {
+			if (!noLoadingIndicator) { showWait(); }
+			ajax.send(null);
+			return (ajax.status >= 200 && (ajax.status < 300 || ajax.status === 304));
 		}
-		else {
+		catch (e) {
+			if (!noLoadingIndicator) { hideWait(); };
+			console.log('controller: ' + url);
+			console.log(e);
 			return false;
 		}
 	}
@@ -784,21 +792,24 @@
 						if (ajax.status >= 200 && (ajax.status < 300 || ajax.status === 304)) {
 							try {
 								const res = JSON.parse(ajax.responseText);
-								resolve(res)
+								hideWait();
+								resolve(res);
 							} catch (e) {
-								console.log('Error: failed parsing json from controller: ' + url)
-								reject(Error(e))
+								console.log('Error: failed parsing json from controller: ' + url);
+								hideWait();
+								reject(Error(e));
 							}
 						}
 						else {
-							console.log('Error: no response from controller: ' + url)
-							reject(Error(ajax.status))
+							console.log('Error: no response from controller: ' + url);
+							hideWait();
+							reject(Error(ajax.status));
 						}
-						hidePreloader()
+
 					}
 				}
 				try {
-					showPreloader()
+					showWait()
 					ajax.send(null)
 				}
 				catch (e) {
@@ -813,7 +824,7 @@
 	};
 	const getAjaxText = function (url, data, success, complete, error) {
 		if (typeof url !== 'undefined' && url !== '') {
-			showPreloader();
+			showWait();
 			success = typeof success !== 'undefined' ? success : function () { };
 			success = typeof success !== 'function' ? function () { } : success;
 			complete = typeof complete !== 'undefined' ? complete : function () { };
@@ -829,12 +840,13 @@
 				if (ajax.readyState == 4) {
 					if ((ajax.status == 200) || (ajax.status == 304)) {
 						res = ajax.responseText;
+						hideWait();
 						success(res);
 					}
 					else {
+						hideWait();
 						error(ajax.status);
 					}
-					hidePreloader();
 					complete();
 					return;
 				}
@@ -845,7 +857,7 @@
 		}
 	};
 	const postAjax = function (url, data, success, complete, error, jsonError) {
-		showPreloader();
+		showWait();
 		success = typeof success !== 'undefined' ? success : function () { };
 		success = typeof success !== 'function' ? function () { } : success;
 		complete = typeof complete !== 'undefined' ? complete : function () { };
@@ -860,24 +872,25 @@
 		ajax.onreadystatechange = function () {
 			if (ajax.readyState == 4) {
 				if ((ajax.status == 200) || (ajax.status == 304)) {
-					var res;
 					try {
-						res = JSON.parse(ajax.responseText);
+						hideWait();
+						const res = JSON.parse(ajax.responseText);
 						success(res);
 					} catch (e) {
+						hideWait();
 						jsonError(e);
 					}
 				}
 				else {
+					hideWait();
 					error(ajax.status);
 				}
-				hidePreloader();
 				complete();
 			}
 		};
 	}
 	const postAjaxMultipart = function (url, data, success, complete, error, jsonError) {
-		showPreloader();
+		showWait();
 		success = typeof success !== 'undefined' ? success : function () { };
 		success = typeof success !== 'function' ? function () { } : success;
 		complete = typeof complete !== 'undefined' ? complete : function () { };
@@ -891,67 +904,61 @@
 		ajax.onreadystatechange = function () {
 			if (ajax.readyState == 4) {
 				if ((ajax.status == 200) || (ajax.status == 304)) {
-					var res;
 					try {
-						res = JSON.parse(ajax.responseText);
+						hideWait();
+						const res = JSON.parse(ajax.responseText);
 						success(res);
 					} catch (e) {
+						hideWait();
 						jsonError(e);
 					}
 				}
 				else {
 					error(ajax.status);
 				}
-				hidePreloader();
 				complete();
 			}
 		};
 	};
-	function postAction(form, target, object, with_print) {
-		with_print = typeof with_print !== 'undefined' ? with_print : false;
+	function postAction(form, url, object, withPrint) {
+		withPrint = typeof withPrint !== 'undefined' ? withPrint : false;
 		$(form).submit(function (event) {
 			event.preventDefault();
-			var r = confirm('Are you sure want to save?');
+			const r = confirm('Are you sure want to save?');
 			if (r === true) {
-				var data_form = $(form + ' :not(.input-filter):not(.input-filter-readonly):not(.unserialize)').serialize();
-				var callback = function (status) {
-					showAjaxResult(status, with_print);
-					if (object) { object.reset(form); }
+				const data = $(form + ' :not(.input-filter):not(.input-filter-readonly):not(.unserialize)').serialize();
+				const callback = function (status) {
+					showAjaxResult(status, withPrint);
+					if (object) {
+						object.reset(form);
+					}
 				};
-				postAjax(target, data_form, callback);
+				postAjax(url, data, callback);
 			}
 		});
 	}
-	function showAjaxResult(status, with_print, customTitle) {
-		with_print = typeof with_print !== 'undefined' ? with_print : false;
-		customTitle = typeof customTitle !== 'undefined' ? customTitle : false;
-		if (status) {
-			var t = yGetTime();
-			var d = yGetDate();
-			var title = '';
-			var string = '';
-			if (!customTitle) {
-				if (typeof (window.yData.module) != 'undefined') {
-					var icon = typeof (yData.icon) !== 'undefined' ? yData.icon : 'info_outline';
-					var label = typeof (yData.label) !== 'undefined' ? yData.label : 'Information';
-					title = yHtml({ element: 'i', class: 'material-icons tiny left', content: icon });
-					title += yHtml({ element: 'span', content: label });
-				}
-			}
-			else {
-				title = customTitle;
-			}
-			for (var i in status) {
-				string += status[i];
-				if (i < (status.length - 1)) {
-					string += '</br>'
-				}
-			}
-			var time = d + ' ' + t;
-			webApp.addNotification(title, string, true, true, time);
-			if (with_print !== false) {
-				printHtml(string);
-			}
+	function showAjaxResult(status, withPrint = false, customTitle = false) {
+		const t = yGetTime();
+		const d = yGetDate();
+		const title = customTitle
+			? customTitle
+			: (
+				yData.module
+					? yHtml({
+						element: 'i',
+						class: 'material-icons tiny left',
+						content: yData.icon || 'info_outline'
+					}) + yHtml({
+						element: 'span',
+						content: yData.label || 'Information'
+					})
+					: ''
+			);
+		const string = Array.isArray(status) ? status.join('<br>') : status;
+		const time = `${d} ${t}`;
+		webApp.addNotification(title, string, true, true, time);
+		if (withPrint !== false) {
+			printHtml(string);
 		}
 	}
 	function preventKeyEnter(selector) {
@@ -970,13 +977,12 @@
 		return p;
 	}
 	function cloneObject(object) {
-		var object_copy = JSON.parse(JSON.stringify(object));
-		return object_copy;
+		return JSON.parse(JSON.stringify(object));
 	}
 	function createMessageBox(title, text, id) {
 		if (!id) id = 'y_message-' + (new Date()).getTime() + '-' + Math.floor((Math.random() * 100) + 1);
 		$('.y_message_box').remove();
-		var h = yHtml([
+		const h = yHtml([
 			{
 				element: 'div', class: 'y_message_box', id: id, content: yHtml([
 					{ element: 'div', class: 'panel_title', content: title },
@@ -1078,10 +1084,41 @@
 		}
 		return value % 1 === 0;
 	};
-	const y_is_number = function (value) { return !isNaN(value - 0) && value !== null; };
+	const isNumber = function (value) { return !isNaN(value - 0) && value !== null; };
 	const yLog = function (message) { if (typeof console === 'object') { console.log(message); } }
 	const useParam = function (object, param) {
 		for (var field in param) { if (param.hasOwnProperty(field)) { object[field] = param[field]; } }
+	}
+
+	// To Title Case
+	const toTitleCase = function (str) {
+		return str.replace(
+			/\w\S*/g,
+			function (txt) {
+				return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+			}
+		);
+	}
+
+	const camelToSnakeCase = (str) => {
+		return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+	}
+
+	const snakeToCamelCase = (str) => {
+		return str.toLowerCase().replace(/([-_][a-z])/g, group =>
+			group
+				.toUpperCase()
+				.replace('-', '')
+				.replace('_', '')
+		);
+	}
+
+	const stringifyJSON = (obj) => {
+		return JSON.stringify(obj).replaceAll('"', "'");
+	}
+
+	const parseJSON = (json) => {
+		return JSON.parse(json.replaceAll("'", '"'));
 	}
 
 	//-------------------------------------------------------------------------
@@ -1091,15 +1128,26 @@
 	const hasParam = function (item, param, comparator, trueResult, falseResult) {
 		trueResult = typeof trueResult !== 'undefined' ? trueResult : true
 		falseResult = typeof falseResult !== 'undefined' ? falseResult : false
-		if(typeof item[param] === 'undefined'){
+		if (typeof item[param] === 'undefined') {
 			return falseResult
 		}
-		if(typeof comparator !== 'undefined') {
+		if (typeof comparator !== 'undefined') {
 			return item[param] === comparator ? trueResult : falseResult
 		}
-		else{
+		else {
 			return (item[param] === true || item[param] === 'yes' || item[param] === 'true') ? trueResult : falseResult
 		}
+	}
+
+	const hasParam_ = (item, param) => {
+		if(typeof item[param] !== 'undefined') {
+			return item[param];
+		}
+		const camelParam = snakeToCamelCase(param);
+		if(typeof item[camelParam] !== 'undefined') {
+			return item[camelParam];
+		}
+		return false;
 	}
 
 	//-------------------------------------------------------------------------
@@ -1115,53 +1163,62 @@
 	const getCaret = function (el) { if (el.selectionStart) { return el.selectionStart; } else if (document.selection) { el.focus(); const r = document.selection.createRange(); if (r == null) { return 0; } const re = el.createTextRange(), rc = re.duplicate(); re.moveToBookmark(r.getBookmark()); rc.setEndPoint('EndToStart', re); return rc.text.length; } return 0; }
 	const setCaret = function (el, pos) { if (el != null) { if (el.createTextRange) { const range = el.createTextRange(); range.move('character', pos); range.select(); } else { if (el.selectionStart) { el.focus(); el.setSelectionRange(pos, pos); } else { el.focus() } } } }
 	if (typeof window === 'object' && typeof window.document === 'object') {
-		window.y_html = htmlCode
-		window.yHtml = htmlCode
-		window._ = window.y = y
-		window.__ = y(document)
+		window.y_html = htmlCode;
+		window.yHtml = htmlCode;
+		window._ = window.y = y;
+		window.__ = y(document);
 		window.yClock = yClock
-		window.yGetTimeStamp = yGetTimeStamp
-		window.showPreloader = showPreloader
-		window.y_wait_show = showPreloader
-		window.hidePreloader = hidePreloader
-		window.y_wait_hide = hidePreloader
-		window.handlePaste = handlePaste
-		window.y_handle_paste = handlePaste
-		window.gridPaste = gridPaste
-		window.y_grid_paste = gridPaste
-		window.postAction = postAction
-		window.y_post_action = postAction
-		window.showAjaxResult = showAjaxResult
-		window.y_show_ajax_result = showAjaxResult
-		window.preventKeyEnter = preventKeyEnter
-		window.prevent_key_enter = preventKeyEnter
-		window.cloneObject = cloneObject
-		window.y_object_clone = cloneObject
-		window.yLog = yLog
-		window.createMessageBox = createMessageBox
-		window.y_message = createMessageBox
-		window.y_print_html = printHtml
-		window.printHtml = printHtml
-		window.promiseGet = promiseGet
-		window.getAjax = getAjax
-		window.getAjaxText = getAjaxText
-		window.postAjax = postAjax
-		window.postAjaxMultipart = postAjaxMultipart
-		window.fileAjax = postAjaxMultipart
-		window.y_command = setCommand
-		window.setCommand = setCommand
-		window.y_valid_numeric = y_valid_numeric
-		window.y_valid_input_date = y_valid_input_date
-		window.y_is_number = y_is_number
-		window.is_integer = isInteger
-		window.isInteger = isInteger
-		window.useParam = useParam
-		window.isParam = hasParam
-		window.hasParam = hasParam
-		window.yClickPosition = yClickPosition
-		window.elvis = elvis
-		window.getCaret = getCaret
-		window.setCaret = setCaret
+		window.yGetTimeStamp = yGetTimeStamp;
+		window.showPreloader = showWait;
+		window.showWait = showWait;
+		window.y_wait_show = showWait;
+		window.hidePreloader = hideWait;
+		window.hideWait = hideWait;
+		window.y_wait_hide = hideWait;
+		window.handlePaste = handlePaste;
+		window.y_handle_paste = handlePaste;
+		window.gridPaste = gridPaste;
+		window.y_grid_paste = gridPaste;
+		window.postAction = postAction;
+		window.y_post_action = postAction;
+		window.showAjaxResult = showAjaxResult;
+		window.y_show_ajax_result = showAjaxResult;
+		window.preventKeyEnter = preventKeyEnter;
+		window.prevent_key_enter = preventKeyEnter;
+		window.cloneObject = cloneObject;
+		window.y_object_clone = cloneObject;
+		window.yLog = yLog;
+		window.createMessageBox = createMessageBox;
+		window.y_message = createMessageBox;
+		window.y_print_html = printHtml;
+		window.printHtml = printHtml;
+		window.promiseGet = promiseGet;
+		window.getAjax = getAjax;
+		window.getAjaxText = getAjaxText;
+		window.postAjax = postAjax;
+		window.postAjaxMultipart = postAjaxMultipart;
+		window.fileAjax = postAjaxMultipart;
+		window.y_command = setCommand;
+		window.setCommand = setCommand;
+		window.y_valid_numeric = y_valid_numeric;
+		window.y_valid_input_date = y_valid_input_date;
+		window.y_is_number = isNumber;
+		window.isNumber = isNumber;
+		window.toTitleCase = toTitleCase;
+		window.camelToSnakeCase = camelToSnakeCase;
+		window.snakeToCamelCase = snakeToCamelCase;
+		window.is_integer = isInteger;
+		window.isInteger = isInteger;
+		window.useParam = useParam;
+		window.isParam = hasParam;
+		window.hasParam = hasParam;
+		window.hasParam_ = hasParam_;
+		window.yClickPosition = yClickPosition;
+		window.elvis = elvis;
+		window.getCaret = getCaret;
+		window.setCaret = setCaret;
+		window.stringifyJSON = stringifyJSON;
+		window.parseJSON = parseJSON;
 	}
 })(window);
 String.prototype.capitalize = function () {
